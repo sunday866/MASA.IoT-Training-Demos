@@ -1,0 +1,27 @@
+﻿@page "/"
+@using MASA.IoT.AdminPortal.Helper;
+@using Texnomic.Blazor.JsonViewer;
+@using MQTTnet.Client;
+<JsonViewer  @ref="JsonViewerInstance"></JsonViewer>
+
+@code {
+   
+    private string mqttUrl { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        mqttUrl = AppHelper.ReadAppSettings("MqttUrl");
+        var mqttHelper = new MqttHelper(mqttUrl, "MqttHub");
+        await mqttHelper.Connect_Client_Using_WebSockets(CallbackAsync, "sunday"); //发布主题消息
+    }
+    protected JsonViewer JsonViewerInstance { get; set; }
+
+
+    private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e)
+    {
+        Console.WriteLine(e.ApplicationMessage.Payload);
+
+        var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
+        await JsonViewerInstance.Render(deviceDataPointStr);
+        await InvokeAsync(() => StateHasChanged());
+    }
+}

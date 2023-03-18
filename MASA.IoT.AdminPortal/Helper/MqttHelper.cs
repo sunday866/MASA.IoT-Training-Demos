@@ -2,16 +2,13 @@
 using MQTTnet.Client;
 using MQTTnet.Formatter;
 
-namespace MASA.IoT.AdminPortal.Helper
-{
-    public class MqttHelper
-    {
+namespace MASA.IoT.AdminPortal.Helper {
+    public class MqttHelper {
         private MqttFactory mqttFactory;
         private IMqttClient mqttClient;
         private MqttClientOptions mqttClientOptions;
         private MqttClientSubscribeOptions mqttClientSubscribeOptions;
-        public MqttHelper(string mqttUrl, string clientID)
-        {
+        public MqttHelper(string mqttUrl, string clientID) {
             mqttFactory = new MqttFactory();
             mqttClient = mqttFactory.CreateMqttClient();
             mqttClientOptions = new MqttClientOptionsBuilder()
@@ -24,8 +21,7 @@ namespace MASA.IoT.AdminPortal.Helper
 
         public async Task SendCmdAsync(string stringdata, string topicIndex)  //发布客户端的消息
         {
-            if (!mqttClient.IsConnected)
-            {
+            if (!mqttClient.IsConnected) {
                 await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
             }
             await mqttClient.PublishStringAsync($"samples/topic/cmd{topicIndex}", stringdata);
@@ -46,11 +42,18 @@ namespace MASA.IoT.AdminPortal.Helper
             Console.WriteLine("The MQTT client is connected.");
 
             await Task.Delay(500);
-
+            mqttClient.ApplicationMessageReceivedAsync -= callback;
             mqttClient.ApplicationMessageReceivedAsync += callback;
             var response2 = await mqttClient.SubscribeAsync(mqttClientSubscribeOptions, CancellationToken.None);
+        }
+        public async Task Disconnect_Client() //订阅客户端
+        {
+            if (mqttClient.IsConnected)
+            {
+                await mqttClient.DisconnectAsync();
 
-
+                Console.WriteLine("The MQTT client is Disconnected.");
+            }
         }
     }
 }

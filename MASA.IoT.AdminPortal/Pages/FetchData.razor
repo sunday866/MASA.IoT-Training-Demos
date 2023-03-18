@@ -1,5 +1,9 @@
 ﻿@page "/fetchdata"
 @using MASA.IoT.AdminPortal.Data
+@using MASA.IoT.AdminPortal.Helper
+@using MQTTnet.Client
+@using Texnomic.Blazor.JsonViewer
+@implements IDisposable
 @inject WeatherForecastService ForecastService
 
 <PageTitle>Weather forecast</PageTitle>
@@ -8,40 +12,103 @@
 
 <p>This component demonstrates fetching data from a service.</p>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<MDataTable Headers="_headers"
+            Items="_desserts"
+            ItemsPerPage="5"
+            Class="elevation-1">
+    <ItemColContent>
+        @if (context.Header.Value == "actions") {
+            <MIcon Small
+               Class="mr-2"
+               OnClick="()=>EditItem(context.Item)">mdi-pencil</MIcon>
+        }
+        else {
+            @context.Value
+        }
+    </ItemColContent>
+</MDataTable>
+<PDrawer Width="500" Value="_showDrawer" ValueChanged="DrwerChangedAsync">
+    <ActivatorContent>
+
+    </ActivatorContent>
+    <ChildContent>
+        <JsonViewer @ref="JsonViewerInstance"></JsonViewer>
+    </ChildContent>
+</PDrawer>
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private string mqttUrl { get; set; }
+    private JsonViewer JsonViewerInstance { get; set; }
+    private MqttHelper mqttHelper { get; set; }
+    public class Dessert {
+        public string Name { get; set; }
+    }
+    private bool _showDrawer { get; set; }
+    private int _editedIndex;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await ForecastService.GetForecastAsync(DateOnly.FromDateTime(DateTime.Now));
+        mqttUrl = AppHelper.ReadAppSettings("MqttUrl");
     }
+    private List<DataTableHeader<Dessert>> _headers = new List<DataTableHeader<Dessert>>
+                        {
+           new ()
+           {
+            Text= "设备名称",
+            Align= DataTableHeaderAlign.Start,
+            Sortable= false,
+            Value= nameof(Dessert.Name)
+          },
+                    new (){ Text= "Actions", Value= "actions",Sortable=false,Width="100px",Align=DataTableHeaderAlign.Center, }
+
+        };
+
+    private async Task DrwerChangedAsync()
+    {
+        _showDrawer = !_showDrawer;
+        if (!_showDrawer)
+        {
+            await mqttHelper.Disconnect_Client();
+        }
+    }
+
+    private List<Dessert> _desserts = new List<Dessert>
+                        {
+           new Dessert
+           {
+              Name= "Device01",
+           },
+                new Dessert
+                {
+                    Name= "Device02",
+                },
+                new Dessert
+                {
+                    Name= "Device03",
+                },
+
+        };
+
+    private async Task EditItem(Dessert item) {
+        _showDrawer = true;
+        _editedIndex = _desserts.IndexOf(item);
+        mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString());
+        await mqttHelper.Connect_Client_Using_WebSockets(CallbackAsync, _desserts[_editedIndex].Name); //发布主题消息
+      
+    }
+
+    private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e) {
+        var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
+        await JsonViewerInstance.Render(deviceDataPointStr);
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    public void Dispose()
+    {
+        if (mqttHelper != null) {
+            mqttHelper.Disconnect_Client().GetAwaiter().GetResult();
+        }
+    }
+
 }

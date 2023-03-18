@@ -1,16 +1,19 @@
+using MASA.IoT.Hub;
 var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddDaprStarterCore(builder.Configuration.GetSection("DaprOptions"));
+    builder.Services.AddDaprStarter(builder.Configuration.GetSection("DaprOptions"));
 }
-builder.Services.AddControllers().AddDapr();
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.Configure<HubAppSettings>(builder.Configuration)
+    .Configure<HubAppSettings>(settings => settings.EnvironmentName = builder.Environment.EnvironmentName);
+builder.Services.AddHostedService<MQHostedService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,5 +28,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapSubscribeHandler();
+
 app.Run();

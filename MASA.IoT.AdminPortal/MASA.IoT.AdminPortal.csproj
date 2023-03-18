@@ -8,9 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Masa.Blazor" Version="1.0.0-preview.8" />
-    <PackageReference Include="MQTTnet" Version="4.1.4.563" />
-    <PackageReference Include="MQTTnet.Extensions.WebSocket4Net" Version="4.1.4.563" />
     <PackageReference Include="Texnomic.Blazor.JsonViewer" Version="0.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MASA.IoT.Common\MASA.IoT.Common.csproj" />
   </ItemGroup>
 
 </Project>

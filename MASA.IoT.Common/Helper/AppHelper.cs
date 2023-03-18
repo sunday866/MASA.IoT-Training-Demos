@@ -1,4 +1,6 @@
-﻿namespace MASA.IoT.AdminPortal.Helper
+﻿using Microsoft.Extensions.Configuration;
+
+namespace MASA.IoT.Common.Helper
 {
     public class AppHelper
     {

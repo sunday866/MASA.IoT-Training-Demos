@@ -1,5 +1,5 @@
 using MASA.IoT.AdminPortal.Data;
-using MASA.IoT.AdminPortal.Helper;
+using MASA.IoT.Common.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 IConfiguration configuration = new ConfigurationBuilder()

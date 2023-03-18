@@ -1,4 +1,6 @@
+using Dapr;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace MASA.IoT.WebApi.Controllers
 {
@@ -28,6 +30,13 @@ namespace MASA.IoT.WebApi.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [Topic("pubsub", "newOrder")]
+        [HttpPost("/orders")]
+        public async Task CreateOrder(JObject jObject)
+        {
+            var sss = jObject;
         }
     }
 }

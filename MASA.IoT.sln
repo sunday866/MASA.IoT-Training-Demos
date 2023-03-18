@@ -5,7 +5,11 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.AdminPortal", "MASA.IoT.AdminPortal\MASA.IoT.AdminPortal.csproj", "{1B893DD7-E48F-4761-884C-1B740045F2CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MASA.IoT.WebApi", "MASA.IoT.WebApi\MASA.IoT.WebApi.csproj", "{2BB7EE8A-E438-4F54-9B59-7588E628E484}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.WebApi", "MASA.IoT.WebApi\MASA.IoT.WebApi.csproj", "{2BB7EE8A-E438-4F54-9B59-7588E628E484}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.Common", "MASA.IoT.Common\MASA.IoT.Common.csproj", "{19CDF082-7568-4EA9-9582-59366668E46A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.Hub", "MASA.IoT.Hub\MASA.IoT.Hub.csproj", "{8C871531-279B-4A18-B33C-BD49CECD1C7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{2BB7EE8A-E438-4F54-9B59-7588E628E484}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BB7EE8A-E438-4F54-9B59-7588E628E484}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BB7EE8A-E438-4F54-9B59-7588E628E484}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19CDF082-7568-4EA9-9582-59366668E46A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19CDF082-7568-4EA9-9582-59366668E46A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19CDF082-7568-4EA9-9582-59366668E46A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19CDF082-7568-4EA9-9582-59366668E46A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C871531-279B-4A18-B33C-BD49CECD1C7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C871531-279B-4A18-B33C-BD49CECD1C7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C871531-279B-4A18-B33C-BD49CECD1C7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C871531-279B-4A18-B33C-BD49CECD1C7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

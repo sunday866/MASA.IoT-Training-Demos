@@ -10,14 +10,10 @@
     <PackageReference Include="Dapr.AspNetCore" Version="1.10.0" />
     <PackageReference Include="Masa.Contrib.Development.DaprStarter" Version="1.0.0-preview.19" />
     <PackageReference Include="Masa.Contrib.Development.DaprStarter.AspNetCore" Version="1.0.0-preview.19" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0-preview.2.23128.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\" />
   </ItemGroup>
 
   <ItemGroup>

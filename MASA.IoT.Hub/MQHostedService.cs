@@ -45,7 +45,7 @@ public class MQHostedService : IHostedService
         };
         try
         {
-            await daprClient.PublishEventAsync("pubsub", "newOrder", pubSubOptions);
+            await daprClient.PublishEventAsync("pubsub", "datapoint", pubSubOptions);
         }
         catch (Exception ex)
         {

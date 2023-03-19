@@ -1,9 +1,10 @@
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers().AddDapr();
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddDaprStarter(builder.Configuration.GetSection("DaprOptions"),false);
 }
-builder.Services.AddControllers().AddDapr();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -18,10 +19,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 app.UseCloudEvents();
 app.MapControllers();
 app.MapSubscribeHandler();
+
+
 app.Run();

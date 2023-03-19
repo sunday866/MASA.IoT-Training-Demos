@@ -20,4 +20,8 @@
     <Folder Include="Data\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MASA.IoT.Common\MASA.IoT.Common.csproj" />
+  </ItemGroup>
+
 </Project>

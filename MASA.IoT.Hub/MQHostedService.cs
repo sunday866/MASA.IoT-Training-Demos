@@ -1,4 +1,5 @@
 using Dapr.Client;
+using MASA.IoT.Common;
 using MASA.IoT.Common.Helper;
 using Microsoft.Extensions.Options;
 using MQTTnet.Client;
@@ -34,9 +35,17 @@ public class MQHostedService : IHostedService
     {
         var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
         Console.WriteLine(deviceDataPointStr);
+        var pubSubOptions = new PubSubOptions
+        {
+            DeviceOneNetId = "123",
+            Msg = deviceDataPointStr,
+            Timestamp = 123,
+            PubTime = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds(),
+            TrackId = Guid.NewGuid()
+        };
         try
         {
-            await daprClient.PublishEventAsync<JObject>("pubsub", "newOrder", JObject.Parse(deviceDataPointStr));
+            await daprClient.PublishEventAsync("pubsub", "newOrder", pubSubOptions);
         }
         catch (Exception ex)
         {

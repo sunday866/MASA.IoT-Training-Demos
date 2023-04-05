@@ -1,3 +1,6 @@
+using MASA.IoT.WebApi.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddDapr();
@@ -9,6 +12,8 @@ if (builder.Environment.IsDevelopment())
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddMasaDbContext<IoTDbContext>(optionsBuilder => optionsBuilder.UseSqlServer());
 
 var app = builder.Build();
 

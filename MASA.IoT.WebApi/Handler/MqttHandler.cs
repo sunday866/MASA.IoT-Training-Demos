@@ -15,7 +15,6 @@ namespace MASA.IoT.WebApi.Handler
             _appSettings = settings.Value;
         }
 
-        
         public async Task<AddDeviceResponse> DeviceRegAsync(string deviceName,string password)
         {
             var url = $"{_appSettings.MqttSetting.Url}/api/v5/authentication/password_based:built_in_database/users";

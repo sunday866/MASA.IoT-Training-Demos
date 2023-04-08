@@ -25,7 +25,6 @@ namespace MASA.IoT.WebApi.Handler
         /// </returns>
         public async Task<DeviceRegResponse> DeviceRegAsync(DeviceRegRequest request)
         {
-
             var productInfo =
                 await _ioTDbContext.IoTProductInfo.FirstOrDefaultAsync(o => o.ProductCode == request.ProductCode);
             if (productInfo == null)
@@ -72,7 +71,6 @@ namespace MASA.IoT.WebApi.Handler
                     ErrMsg = addDeviceResponse.message
                 };
             }
-
         }
 
         /// <summary>
@@ -107,6 +105,7 @@ namespace MASA.IoT.WebApi.Handler
         /// <summary>
         /// 生成设备名称
         /// </summary>
+        /// <param name="supplyNo"></param>
         /// <param name="productCode"></param>
         /// <param name="uuid"></param>
         /// <returns>
@@ -123,7 +122,6 @@ namespace MASA.IoT.WebApi.Handler
                 ProductCode = productCode,
                 CreationTime = DateTime.Now
             };
-
 
             if (lastDeviceware != null && lastDeviceware.DeviceName.StartsWith(supplyNo + DateTime.Today.ToString("yyyyMMdd")))
             {

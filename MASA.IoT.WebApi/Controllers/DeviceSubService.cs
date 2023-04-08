@@ -11,15 +11,18 @@ using MASA.IoT.WebApi.Models.Models;
 
 namespace MASA.IoT.WebApi.Controllers
 {
-    [ApiController]
-    public class CheckoutServiceController : Controller
+    public class DeviceSubService : ServiceBase
     {
-        //Subscribe to a topic 
-        [Topic("pubsub", "datapoint")]
-        [HttpPost("datapoint")]
-        public void getCheckout([FromBody] PubSubOptions pubSubOptions)
+        public DeviceSubService(IServiceCollection services):base(services, "/api/DeviceSub")
         {
-            Console.WriteLine("Subscriber received : " + pubSubOptions.Msg);
+            var apiPath = "/api/BusinessDeviceSub";
+            App.MapPost($"{apiPath}/{nameof(BusinessMQOperation)}", BusinessMQOperation);
+        }
+
+        [Topic("pubsub", "BusinessMQOperation")]
+        public async Task BusinessMQOperation(PubSubOptions options)
+        {
+            Console.WriteLine(options.Msg);
         }
 
     }

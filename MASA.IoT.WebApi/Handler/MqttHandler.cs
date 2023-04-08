@@ -18,11 +18,11 @@ namespace MASA.IoT.WebApi.Handler
         
         public async Task<AddDeviceResponse> DeviceRegAsync(string deviceName,string password)
         {
-            var url = $"{_appSettings.MqttSetting.Url}/api/v5/authentication/password_based%3Abuilt_in_database/users";
+            var url = $"{_appSettings.MqttSetting.Url}/api/v5/authentication/password_based:built_in_database/users";
             var response = await url.WithBasicAuth(_appSettings.MqttSetting.ApiKey, _appSettings.MqttSetting.SecretKey).AllowAnyHttpStatus().PostJsonAsync(new AddDeviceRequest
             {
-                User_id = deviceName,
-                Password = password,
+                user_id = deviceName,
+                password = password,
             }
             );
             if (response.StatusCode is (int)HttpStatusCode.Created or (int)HttpStatusCode.BadRequest or (int)HttpStatusCode.NotFound)

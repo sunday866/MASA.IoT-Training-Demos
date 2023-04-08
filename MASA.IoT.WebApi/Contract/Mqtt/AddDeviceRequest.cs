@@ -2,10 +2,12 @@
 
 namespace MASA.IoT.WebApi.Contract.Mqtt
 {
+    //[DataContract]
     public class AddDeviceRequest
     {
-
-        public string User_id { get; set; }
-        public string Password { get; set; }
+        //[DataMember(Name= "user_Id")]
+        public string user_id { get; set; }
+        //[DataMember(Name = "password")] 
+        public string password { get; set; }
     }
 }

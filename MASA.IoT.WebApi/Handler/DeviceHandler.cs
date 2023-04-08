@@ -32,7 +32,6 @@ namespace MASA.IoT.WebApi.Handler
             {
                 return new DeviceRegResponse
                 {
-
                     Succeed = false,
                     ErrMsg = "ProductCode not found"
                 };
@@ -47,14 +46,14 @@ namespace MASA.IoT.WebApi.Handler
                 var deviceName = await GenerateDeviceNameAsync(productInfo.SupplyNo, request.ProductCode, request.UUID);
                 var password = Guid.NewGuid().ToString("N");
                 var addDeviceResponse = await _mqttHandler.DeviceRegAsync(deviceName, password);
-                if (addDeviceResponse.User_id == deviceName) //注册成功
+                if (addDeviceResponse.user_id == deviceName) //注册成功
                 {
                     deviceRegInfo = new DeviceRegResponse
                     {
                         DeviceName = deviceName,
                         Password = password,
-                        Succeed = false,
-                        ErrMsg = null
+                        Succeed = true,
+                        ErrMsg = string.Empty
                     };
                     await _ioTDbContext.IoTDeviceInfo.AddAsync(new IoTDeviceInfo
                     {
@@ -70,7 +69,7 @@ namespace MASA.IoT.WebApi.Handler
                 return new DeviceRegResponse
                 {
                     Succeed = false,
-                    ErrMsg = addDeviceResponse.Message
+                    ErrMsg = addDeviceResponse.message
                 };
             }
 
@@ -113,24 +112,26 @@ namespace MASA.IoT.WebApi.Handler
         /// <returns>
         /// 设备Mqtt名称
         /// </returns>
-        private async Task<string> GenerateDeviceNameAsync(string supplyNo,string productCode, string uuid)
+        private async Task<string> GenerateDeviceNameAsync(string supplyNo, string productCode, string uuid)
         {
-            var lastDeviceware = _ioTDbContext.IoTDevicewares.LastOrDefault(o => o.ProductCode == productCode);
+            var lastDeviceware = await _ioTDbContext.IoTDevicewares.Where(o => o.ProductCode == productCode).OrderByDescending(o => o.CreationTime).FirstOrDefaultAsync();
 
             var newDeviceware = new IoTDevicewares
             {
                 Id = Guid.NewGuid(),
                 UUID = uuid,
-                ProductCode = productCode
+                ProductCode = productCode,
+                CreationTime = DateTime.Now
             };
 
-            if (lastDeviceware != null)
+
+            if (lastDeviceware != null && lastDeviceware.DeviceName.StartsWith(supplyNo + DateTime.Today.ToString("yyyyMMdd")))
             {
-                newDeviceware.DeviceName = (int.Parse(lastDeviceware.DeviceName) + 1).ToString();
+                newDeviceware.DeviceName = (long.Parse(lastDeviceware.DeviceName) + 1).ToString();
             }
             else
             {
-                newDeviceware.DeviceName = supplyNo + "00000001";
+                newDeviceware.DeviceName = supplyNo + DateTime.Today.ToString("yyyyMMdd") + "0001";
             }
             await _ioTDbContext.IoTDevicewares.AddAsync(newDeviceware);
             await _ioTDbContext.SaveChangesAsync();

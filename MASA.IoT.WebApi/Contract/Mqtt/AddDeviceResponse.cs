@@ -4,9 +4,12 @@ namespace MASA.IoT.WebApi.Contract.Mqtt
 {
     public class AddDeviceResponse
     {
-        public string Code { get; set; }
-        public string Message { get; set; }
-        public string User_id { get; set; }
+        //[DataMember(Name="code")]
+        public string code { get; set; }
+        //[DataMember(Name = "message")] 
+        public string message { get; set; }
+        //[DataMember(Name = "user_id")] 
+        public string user_id { get; set; }
 
     }
 

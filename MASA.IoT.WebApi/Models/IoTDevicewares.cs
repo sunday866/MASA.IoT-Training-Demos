@@ -8,18 +8,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MASA.IoT.WebApi.Models.Models;
 
-public partial class IoTDeviceInfo
+public partial class IoTDevicewares
 {
     [Key]
     public Guid Id { get; set; }
 
     [Required]
     [StringLength(50)]
+    public string UUID { get; set; }
+
+    [Required]
+    [StringLength(20)]
+    public string ProductCode { get; set; }
+
+    [Required]
+    [StringLength(20)]
     public string DeviceName { get; set; }
 
-    public Guid ProductInfoId { get; set; }
-
-    [ForeignKey("ProductInfoId")]
-    [InverseProperty("IoTDeviceInfo")]
-    public virtual IoTProductInfo ProductInfo { get; set; }
+    public DateTime CreationTime { get; set; }
 }

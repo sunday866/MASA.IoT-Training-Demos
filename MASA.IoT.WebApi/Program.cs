@@ -1,5 +1,7 @@
-using MASA.IoT.WebApi.Models;
-using Microsoft.EntityFrameworkCore;
+
+using MASA.IoT.WebApi;
+using MASA.IoT.WebApi.Handler;
+using MASA.IoT.WebApi.IHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +14,11 @@ if (builder.Environment.IsDevelopment())
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddMasaDbContext<IoTDbContext>(optionsBuilder => optionsBuilder.UseSqlServer());
+builder.Services.AddMapster();
+builder.Services.AddTransient<IDeviceHandler, DeviceHandler>();
+builder.Services.AddTransient<IMqttHandler, MqttHandler>();
+builder.Services.Configure<AppSettings>(builder.Configuration)
+    .Configure<AppSettings>(settings => settings.EnvironmentName = builder.Environment.EnvironmentName);
 
 var app = builder.Build();
 

@@ -24,11 +24,11 @@ namespace MASA.IoT.WebApi.Controllers
        //Subscribe to a topic 
         [Topic("pubsub", "datapoint")]
         [HttpPost("datapoint")]
-        public void getCheckout([FromBody] PubSubOptions pubSubOptions,[FromServices])
+        public void getCheckout([FromBody] PubSubOptions pubSubOptions)
         {
-            _deviceInfoRepository.
             Console.WriteLine("Subscriber received : " + pubSubOptions.Msg);
         }
+
     }
 }
 

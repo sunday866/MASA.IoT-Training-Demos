@@ -4,31 +4,22 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Masa.BuildingBlocks.Ddd.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace MASA.IoT.WebApi.Models;
+namespace MASA.IoT.WebApi.Models.Models;
 
-public partial class IoTProductInfo : AggregateRoot<Guid>
+public partial class IoTProductInfo
 {
     [Key]
     public Guid Id { get; set; }
-
-    public DateTime CreationTime { get; set; }
-
-    public DateTime LastModificationTime { get; set; }
 
     [Required]
     [StringLength(50)]
     public string SalesName { get; set; }
 
     [Required]
-    [StringLength(50)]
-    public string MaterialNo { get; set; }
-
-    public bool IsDeleted { get; set; }
-
-    public DateTime DeletionTime { get; set; }
+    [StringLength(20)]
+    public string ProductCode { get; set; }
 
     [InverseProperty("ProductInfo")]
     public virtual ICollection<IoTDeviceInfo> IoTDeviceInfo { get; } = new List<IoTDeviceInfo>();

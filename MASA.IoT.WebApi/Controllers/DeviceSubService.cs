@@ -7,21 +7,14 @@ using Dapr.Client;
 using Masa.BuildingBlocks.Ddd.Domain.Repositories;
 using MASA.IoT.Common;
 using MASA.IoT.WebApi.Models;
+using MASA.IoT.WebApi.Models.Models;
 
 namespace MASA.IoT.WebApi.Controllers
 {
     [ApiController]
     public class CheckoutServiceController : Controller
     {
-
-       private IRepository<IoTDeviceInfo> _deviceInfoRepository;
-
-       public CheckoutServiceController(IRepository<IoTDeviceInfo> deviceInfoRepository)
-       {
-           _deviceInfoRepository = deviceInfoRepository;
-       }
-
-       //Subscribe to a topic 
+        //Subscribe to a topic 
         [Topic("pubsub", "datapoint")]
         [HttpPost("datapoint")]
         public void getCheckout([FromBody] PubSubOptions pubSubOptions)

@@ -19,6 +19,10 @@ public partial class IoTDeviceInfo
 
     public Guid ProductInfoId { get; set; }
 
+    [Required]
+    [StringLength(50)]
+    public string Password { get; set; }
+
     [ForeignKey("ProductInfoId")]
     [InverseProperty("IoTDeviceInfo")]
     public virtual IoTProductInfo ProductInfo { get; set; }

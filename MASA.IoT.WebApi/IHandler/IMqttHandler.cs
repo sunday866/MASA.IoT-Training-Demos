@@ -5,6 +5,6 @@ namespace MASA.IoT.WebApi.IHandler
 {
     public interface IMqttHandler
     {
-        Task<AddDeviceResponse> DeviceRegAsync(string DeviceName);
+        Task<AddDeviceResponse> DeviceRegAsync(string deviceName, string password);
     }
 }

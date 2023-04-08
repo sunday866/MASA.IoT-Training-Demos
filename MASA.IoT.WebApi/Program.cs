@@ -2,6 +2,8 @@
 using MASA.IoT.WebApi;
 using MASA.IoT.WebApi.Handler;
 using MASA.IoT.WebApi.IHandler;
+using MASA.IoT.WebApi.Models.Models;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,9 @@ builder.Services.AddTransient<IDeviceHandler, DeviceHandler>();
 builder.Services.AddTransient<IMqttHandler, MqttHandler>();
 builder.Services.Configure<AppSettings>(builder.Configuration)
     .Configure<AppSettings>(settings => settings.EnvironmentName = builder.Environment.EnvironmentName);
+
+builder.Services.AddDbContext<MASAIoTContext>(
+    options => options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
 
 var app = builder.Build();
 

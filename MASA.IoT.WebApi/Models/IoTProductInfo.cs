@@ -17,6 +17,9 @@ public partial class IoTProductInfo
     [StringLength(50)]
     public string SalesName { get; set; }
 
+    [StringLength(3)]
+    public string SupplyNo { get; set; }
+
     [Required]
     [StringLength(20)]
     public string ProductCode { get; set; }

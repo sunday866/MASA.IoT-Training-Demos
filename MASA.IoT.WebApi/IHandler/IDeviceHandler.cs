@@ -4,6 +4,6 @@ namespace MASA.IoT.WebApi.IHandler
 {
     public interface IDeviceHandler
     {
-        Task<bool> DeviceRegAsync(DeviceRegRequest request);
+        Task<DeviceRegResponse> DeviceRegAsync(DeviceRegRequest request);
     }
 }

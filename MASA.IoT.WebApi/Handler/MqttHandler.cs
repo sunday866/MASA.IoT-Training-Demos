@@ -2,21 +2,27 @@
 using MASA.IoT.WebApi.Contract.Mqtt;
 using MASA.IoT.WebApi.IHandler;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace MASA.IoT.WebApi.Handler
 {
     public class MqttHandler : IMqttHandler
     {
-        [Inject]
-        public AppSettings AppSettings { get; set; }
-        public async Task<AddDeviceResponse> DeviceRegAsync(string DeviceName)
+        private readonly AppSettings _appSettings;
+        public MqttHandler(IOptions<AppSettings> settings)
         {
-            var url = $"{AppSettings.MqttSetting.Url}/api/v5/authentication/password_based%3Abuilt_in_database/users";
-            var response = await url.WithBasicAuth(AppSettings.MqttSetting.ApiKey, AppSettings.MqttSetting.SecretKey).AllowAnyHttpStatus().PostJsonAsync(new AddDeviceRequest
+            _appSettings = settings.Value;
+        }
+
+        
+        public async Task<AddDeviceResponse> DeviceRegAsync(string deviceName,string password)
+        {
+            var url = $"{_appSettings.MqttSetting.Url}/api/v5/authentication/password_based%3Abuilt_in_database/users";
+            var response = await url.WithBasicAuth(_appSettings.MqttSetting.ApiKey, _appSettings.MqttSetting.SecretKey).AllowAnyHttpStatus().PostJsonAsync(new AddDeviceRequest
             {
-                User_id = DeviceName,
-                Password = Guid.NewGuid().ToString("N"),
+                User_id = deviceName,
+                Password = password,
             }
             );
             if (response.StatusCode is (int)HttpStatusCode.Created or (int)HttpStatusCode.BadRequest or (int)HttpStatusCode.NotFound)

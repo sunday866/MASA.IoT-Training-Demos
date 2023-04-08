@@ -17,7 +17,7 @@ namespace MASA.IoT.WebApi.Controllers
 
         [HttpPost]
 
-        public async Task<DeviceRegResponse> AddDeviceAsync(DeviceRegRequest request)
+        public async Task<DeviceRegResponse> DeviceRegAsync(DeviceRegRequest request)
         {
             return await _deviceHandler.DeviceRegAsync(request);
         }

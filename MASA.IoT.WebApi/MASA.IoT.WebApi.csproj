@@ -8,13 +8,22 @@
 
   <ItemGroup>
     <PackageReference Include="Dapr.AspNetCore" Version="1.10.0" />
-    <PackageReference Include="Masa.Contrib.Development.DaprStarter" Version="1.0.0-preview.19" />
-    <PackageReference Include="Masa.Contrib.Development.DaprStarter.AspNetCore" Version="1.0.0-preview.19" />
-    <PackageReference Include="Masa.Contrib.Service.MinimalAPIs" Version="1.0.0-preview.19" />
+    <PackageReference Include="Flurl.Http" Version="4.0.0-pre3" />
+    <PackageReference Include="Masa.Blazor" Version="1.0.0-preview.12" />
+    <PackageReference Include="Masa.BuildingBlocks.Exceptions" Version="1.0.0-preview.26" />
+    <PackageReference Include="Masa.Contrib.Data.EFCore.SqlServer" Version="1.0.0-preview.26" />
+    <PackageReference Include="Masa.Contrib.Data.Mapping.Mapster" Version="1.0.0-preview.26" />
+    <PackageReference Include="Masa.Contrib.Development.DaprStarter" Version="1.0.0-preview.26" />
+    <PackageReference Include="Masa.Contrib.Development.DaprStarter.AspNetCore" Version="1.0.0-preview.26" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0-preview.2.23128.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>

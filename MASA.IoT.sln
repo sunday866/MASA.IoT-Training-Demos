@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.AdminPortal", "MASA.IoT.AdminPortal\MASA.IoT.AdminPortal.csproj", "{1B893DD7-E48F-4761-884C-1B740045F2CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.UI", "MASA.IoT.UI\MASA.IoT.UI.csproj", "{1B893DD7-E48F-4761-884C-1B740045F2CD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.WebApi", "MASA.IoT.WebApi\MASA.IoT.WebApi.csproj", "{2BB7EE8A-E438-4F54-9B59-7588E628E484}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.Core", "MASA.IoT.Core\MASA.IoT.Core.csproj", "{2BB7EE8A-E438-4F54-9B59-7588E628E484}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MASA.IoT.Common", "MASA.IoT.Common\MASA.IoT.Common.csproj", "{19CDF082-7568-4EA9-9582-59366668E46A}"
 EndProject

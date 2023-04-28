@@ -28,7 +28,7 @@ public class MQHostedService : IHostedService
     {
         var mqttHelper = new MqttHelper(_appSettings.MqttSetting.MqttUrl, "IoTHub", _appSettings.MqttSetting.UserName, _appSettings.MqttSetting.Password);
         var daprClient = new DaprClientBuilder().Build();
-        await mqttHelper.Connect_Client_Using_WebSockets(CallbackAsync, _appSettings.MqttSetting.Topic);
+        await mqttHelper.ConnectClient(CallbackAsync, _appSettings.MqttSetting.Topic);
         Console.ReadKey();
     }
     private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e)

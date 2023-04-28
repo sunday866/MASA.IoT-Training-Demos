@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 
 namespace MASA.IoT.WebApi.Contract
 {

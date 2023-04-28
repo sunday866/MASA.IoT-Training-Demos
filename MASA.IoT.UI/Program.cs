@@ -1,4 +1,4 @@
-using MASA.IoT.AdminPortal.Data;
+
 using MASA.IoT.Common.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +8,6 @@ IConfiguration configuration = new ConfigurationBuilder()
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddMasaBlazor();
 builder.Services.AddSingleton(new AppHelper(configuration));
 var app = builder.Build();

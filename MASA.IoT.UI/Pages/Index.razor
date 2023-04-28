@@ -3,38 +3,38 @@
 @using MASA.IoT.Common.Helper;
 @using MQTTnet.Client;
 @using Texnomic.Blazor.JsonViewer;
-<JsonViewer @ref="JsonViewerInstance"></JsonViewer>
+@*<JsonViewer @ref="JsonViewerInstance"></JsonViewer>
 <JsonViewer @ref="JsonViewerInstanceAll"></JsonViewer>
 
-<MButton OnClick="SubDeviceMsgAsync"></MButton>
+<MButton OnClick="SubDeviceMsgAsync"></MButton>*@
 @code {
 
-    private string mqttUrl { get; set; }
-    private JsonViewer JsonViewerInstance { get; set; }
-    private JsonViewer JsonViewerInstanceAll { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        mqttUrl = AppHelper.ReadAppSettings("MqttUrl");
-        var mqttHelper = new MqttHelper(mqttUrl, "MqttHub","emqx","123456");
-        await mqttHelper.Connect_Client_Using_WebSockets(CallbackAsync, "+"); //发布主题消息
-    }
+    //private string mqttUrl { get; set; }
+    //private JsonViewer JsonViewerInstance { get; set; }
+    //private JsonViewer JsonViewerInstanceAll { get; set; }
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    mqttUrl = AppHelper.ReadAppSettings("MqttUrl");
+    //    var mqttHelper = new MqttHelper(mqttUrl, "MqttHub","emqx","123456");
+    //    await mqttHelper.ConnectClient(CallbackAsync, "+"); //发布主题消息
+    //}
 
-    private async Task SubDeviceMsgAsync()
-    {
-        var mqttHelper2 = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(), "emqx", "123456");
-        await mqttHelper2.Connect_Client_Using_WebSockets(CallbackAsync2, "sunday"); //发布主题消息
-    }
-    private async Task CallbackAsync2(MqttApplicationMessageReceivedEventArgs e)
-    {
-        var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
-        await JsonViewerInstance.Render(deviceDataPointStr);
-        await InvokeAsync(StateHasChanged);
-    }
+    //private async Task SubDeviceMsgAsync()
+    //{
+    //    var mqttHelper2 = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(), "emqx", "123456");
+    //    await mqttHelper2.ConnectClient(CallbackAsync2, "dp"); //发布主题消息
+    //}
+    //private async Task CallbackAsync2(MqttApplicationMessageReceivedEventArgs e)
+    //{
+    //    var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
+    //    await JsonViewerInstance.Render(deviceDataPointStr);
+    //    await InvokeAsync(StateHasChanged);
+    //}
 
-    private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e)
-    {
-        var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
-        await JsonViewerInstanceAll.Render(deviceDataPointStr);
-        await InvokeAsync(StateHasChanged);
-    }
+    //private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e)
+    //{
+    //    var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
+    //    await JsonViewerInstanceAll.Render(deviceDataPointStr);
+    //    await InvokeAsync(StateHasChanged);
+    //}
 }

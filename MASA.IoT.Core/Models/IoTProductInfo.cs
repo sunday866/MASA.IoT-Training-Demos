@@ -25,5 +25,5 @@ public partial class IoTProductInfo
     public string ProductCode { get; set; }
 
     [InverseProperty("ProductInfo")]
-    public virtual ICollection<IoTDeviceInfo> IoTDeviceInfo { get; } = new List<IoTDeviceInfo>();
+    public virtual ICollection<IoTDeviceInfo> IoTDeviceInfo { get; set; } = new List<IoTDeviceInfo>();
 }

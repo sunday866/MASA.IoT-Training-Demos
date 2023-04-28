@@ -27,7 +27,7 @@
          "ObjectType": 0
       }
    ],
-   "UiHint": "win2022.masa_iot",
+   "UiHint": "win2022.masa_iot.dbo",
    "UncountableWords": null,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,

@@ -1,4 +1,7 @@
-﻿using MQTTnet;
+﻿using JWT;
+using JWT.Algorithms;
+using JWT.Serializers;
+using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Formatter;
 
@@ -15,7 +18,7 @@ namespace MASA.IoT.Common.Helper
             mqttFactory = new MqttFactory();
             mqttClient = mqttFactory.CreateMqttClient();
             mqttClientOptions = new MqttClientOptionsBuilder()
-                                  .WithTcpServer(mqttUrl, 2883)
+                                  .WithTcpServer(mqttUrl)
               .WithCredentials(userName, passWord).WithProtocolVersion(MqttProtocolVersion.V500).Build();
 
             mqttClientOptions.ClientId = clientID;
@@ -30,7 +33,7 @@ namespace MASA.IoT.Common.Helper
             }
             await mqttClient.PublishStringAsync($"samples/topic/cmd{topicIndex}", stringdata);
         }
-        public async Task Connect_Client_Using_WebSockets(Func<MqttApplicationMessageReceivedEventArgs, Task> callback, string topic) //订阅客户端
+        public async Task ConnectClient(Func<MqttApplicationMessageReceivedEventArgs, Task> callback, string topic) //订阅客户端
         {
             /*
              * This sample creates a simple MQTT client and connects to a public broker using a WebSocket connection.

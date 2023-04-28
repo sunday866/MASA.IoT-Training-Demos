@@ -1,16 +1,13 @@
 ﻿@page "/fetchdata"
-@using MASA.IoT.AdminPortal.Data
+
 @using MASA.IoT.Common.Helper
 @using MQTTnet.Client
 @using Texnomic.Blazor.JsonViewer
 @implements IDisposable
-@inject WeatherForecastService ForecastService
 
 <PageTitle>Weather forecast</PageTitle>
 
-<h1>Weather forecast</h1>
-
-<p>This component demonstrates fetching data from a service.</p>
+<h1>设备列表</h1>
 
 <MDataTable Headers="_headers"
             Items="_desserts"
@@ -92,8 +89,9 @@
     private async Task EditItem(Dessert item) {
         _showDrawer = true;
         _editedIndex = _desserts.IndexOf(item);
-        mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString());
-        await mqttHelper.Connect_Client_Using_WebSockets(CallbackAsync, _desserts[_editedIndex].Name); //发布主题消息
+
+        mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(),"",TokenHelper.CreateJwtToken(new Dictionary<string, object>(),"731543"));
+        await mqttHelper.ConnectClient(CallbackAsync, _desserts[_editedIndex].Name); //发布主题消息
       
     }
 

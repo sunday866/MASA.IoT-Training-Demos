@@ -1,10 +1,15 @@
 ﻿using MASA.IoT.WebApi.Contract;
 using MASA.IoT.WebApi.IHandler;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using System.Text;
+using MASA.IoT.Core.Contract;
+using MASA.IoT.Core.Contract.Enum;
+using MASA.IoT.Core.Contract.Mqtt;
 
 namespace MASA.IoT.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[Action]")]
     [ApiController]
     public class DeviceController : ControllerBase
     {
@@ -20,6 +25,23 @@ namespace MASA.IoT.WebApi.Controllers
         public async Task<DeviceRegResponse> DeviceRegAsync(DeviceRegRequest request)
         {
             return await _deviceHandler.DeviceRegAsync(request);
+        }
+
+        /// <summary>
+        /// 连接、断开事件
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task ConnectedEventAsync([FromBody] ConnectedEventRequest request)
+        {
+            var onlineStatus = request.Event switch
+            {
+                "client.connected" => OnLineStates.OnLine,
+                _ => OnLineStates.OffLine
+            };
+
+            await _deviceHandler.UpdateDeviceOnlineStatusAsync(request.Username, onlineStatus);
         }
     }
 }

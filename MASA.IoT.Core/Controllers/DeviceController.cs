@@ -6,6 +6,8 @@ using System.Text;
 using MASA.IoT.Core.Contract;
 using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.Core.Contract.Mqtt;
+using MASA.IoT.Core.Contract.Device;
+using Masa.Utils.Models;
 
 namespace MASA.IoT.WebApi.Controllers
 {
@@ -42,6 +44,17 @@ namespace MASA.IoT.WebApi.Controllers
             };
 
             await _deviceHandler.UpdateDeviceOnlineStatusAsync(request.Username, onlineStatus);
+        }
+
+        /// <summary>
+        /// 按照产品Id分页查询设备列表
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<PaginatedListBase<DeviceListViewModel>> GetDeviceListBaseAsync([FromBody] DeviceListOption options)
+        {
+           return await _deviceHandler.GetDeviceListBaseAsync(options);
         }
     }
 }

@@ -1,7 +1,11 @@
-﻿using MASA.IoT.Core.Contract.Enum;
+﻿using System.Linq.Expressions;
+using Masa.BuildingBlocks.Ddd.Domain.Repositories;
+using MASA.IoT.Core.Contract.Device;
+using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.WebApi.Contract;
 using MASA.IoT.WebApi.IHandler;
 using MASA.IoT.WebApi.Models.Models;
+using Masa.Utils.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace MASA.IoT.WebApi.Handler
@@ -101,67 +105,93 @@ namespace MASA.IoT.WebApi.Handler
         }
 
         /// <summary>
-            /// 获取设备注册信息
-            /// </summary>
-            /// <param name="request"></param>
-            /// <returns>
-            /// 设备已经注册返回设备注册信息，没有注册过返回null
-            /// </returns>
-            private async Task<DeviceRegResponse?> GetDeviceRegInfoAsync(DeviceRegRequest request)
+        /// 获取设备注册信息
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns>
+        /// 设备已经注册返回设备注册信息，没有注册过返回null
+        /// </returns>
+        private async Task<DeviceRegResponse?> GetDeviceRegInfoAsync(DeviceRegRequest request)
+        {
+            var deviceware = await _ioTDbContext.IoTDevicewares.FirstOrDefaultAsync(o => o.ProductCode == request.ProductCode && o.UUID == request.UUID);
+
+            if (deviceware == null)
             {
-                var deviceware = await _ioTDbContext.IoTDevicewares.FirstOrDefaultAsync(o => o.ProductCode == request.ProductCode && o.UUID == request.UUID);
-
-                if (deviceware == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    var deviceInfo = await _ioTDbContext.IoTDeviceInfo.FirstAsync(o => o.DeviceName == deviceware.DeviceName);
-
-                    return new DeviceRegResponse
-                    {
-                        DeviceName = deviceInfo.DeviceName,
-                        Password = deviceInfo.Password,
-                        Succeed = true,
-                        ErrMsg = string.Empty
-                    };
-                }
+                return null;
             }
-
-            /// <summary>
-            /// 生成设备名称
-            /// </summary>
-            /// <param name="supplyNo"></param>
-            /// <param name="productCode"></param>
-            /// <param name="uuid"></param>
-            /// <returns>
-            /// 设备Mqtt名称
-            /// </returns>
-            private async Task<string> GenerateDeviceNameAsync(string supplyNo, string productCode, string uuid)
+            else
             {
-                var lastDeviceware = await _ioTDbContext.IoTDevicewares.Where(o => o.ProductCode == productCode).OrderByDescending(o => o.CreationTime).FirstOrDefaultAsync();
+                var deviceInfo = await _ioTDbContext.IoTDeviceInfo.FirstAsync(o => o.DeviceName == deviceware.DeviceName);
 
-                var newDeviceware = new IoTDevicewares
+                return new DeviceRegResponse
                 {
-                    Id = Guid.NewGuid(),
-                    UUID = uuid,
-                    ProductCode = productCode,
-                    CreationTime = DateTime.Now
+                    DeviceName = deviceInfo.DeviceName,
+                    Password = deviceInfo.Password,
+                    Succeed = true,
+                    ErrMsg = string.Empty
                 };
-
-                if (lastDeviceware != null && lastDeviceware.DeviceName.StartsWith(supplyNo + DateTime.Today.ToString("yyyyMMdd")))
-                {
-                    newDeviceware.DeviceName = (long.Parse(lastDeviceware.DeviceName) + 1).ToString();
-                }
-                else
-                {
-                    newDeviceware.DeviceName = supplyNo + DateTime.Today.ToString("yyyyMMdd") + "0001";
-                }
-                await _ioTDbContext.IoTDevicewares.AddAsync(newDeviceware);
-                await _ioTDbContext.SaveChangesAsync();
-
-                return newDeviceware.DeviceName;
             }
         }
+
+        /// <summary>
+        /// 生成设备名称
+        /// </summary>
+        /// <param name="supplyNo"></param>
+        /// <param name="productCode"></param>
+        /// <param name="uuid"></param>
+        /// <returns>
+        /// 设备Mqtt名称
+        /// </returns>
+        private async Task<string> GenerateDeviceNameAsync(string supplyNo, string productCode, string uuid)
+        {
+            var lastDeviceware = await _ioTDbContext.IoTDevicewares.Where(o => o.ProductCode == productCode).OrderByDescending(o => o.CreationTime).FirstOrDefaultAsync();
+
+            var newDeviceware = new IoTDevicewares
+            {
+                Id = Guid.NewGuid(),
+                UUID = uuid,
+                ProductCode = productCode,
+                CreationTime = DateTime.Now
+            };
+
+            if (lastDeviceware != null && lastDeviceware.DeviceName.StartsWith(supplyNo + DateTime.Today.ToString("yyyyMMdd")))
+            {
+                newDeviceware.DeviceName = (long.Parse(lastDeviceware.DeviceName) + 1).ToString();
+            }
+            else
+            {
+                newDeviceware.DeviceName = supplyNo + DateTime.Today.ToString("yyyyMMdd") + "0001";
+            }
+            await _ioTDbContext.IoTDevicewares.AddAsync(newDeviceware);
+            await _ioTDbContext.SaveChangesAsync();
+
+            return newDeviceware.DeviceName;
+        }
+
+
+        public async Task<PaginatedListBase<DeviceListViewModel>> GetDeviceListBaseAsync(DeviceListOption options)
+        {
+            var res = await (
+                from d in _ioTDbContext.IoTDeviceInfo
+                join p in _ioTDbContext.IoTProductInfo
+                    on d.ProductInfoId equals p.Id
+                    into productInfo
+                from p in productInfo.DefaultIfEmpty()
+                where p.Id.Equals(options.ProductId)
+
+                select new DeviceListViewModel
+                {
+                    Id = d.Id,
+                    DeviceName = d.DeviceName,
+
+                }).Distinct().OrderByDescending(x => x.DeviceName).GetPaginatedListAsync(new PaginatedOptions
+            {
+                Page = options.PageIndex,
+                PageSize = options.PageSize,
+                Sorting = null
+            });
+
+            return res;
+        }
     }
+}

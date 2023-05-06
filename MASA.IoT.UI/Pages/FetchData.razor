@@ -9,17 +9,14 @@
 
 <h1>设备列表</h1>
 
-<MDataTable Headers="_headers"
-            Items="_desserts"
-            ItemsPerPage="5"
-            Class="elevation-1">
+<MDataTable Headers="_headers" Items="_desserts" ItemsPerPage="5" Class="elevation-1">
     <ItemColContent>
-        @if (context.Header.Value == "actions") {
-            <MIcon Small
-               Class="mr-2"
-               OnClick="()=>EditItem(context.Item)">mdi-pencil</MIcon>
+        @if (context.Header.Value == "actions")
+        {
+            <MIcon Small Class="mr-2" OnClick="()=>EditItem(context.Item)">mdi-pencil</MIcon>
         }
-        else {
+        else
+        {
             @context.Value
         }
     </ItemColContent>
@@ -37,7 +34,8 @@
     private string mqttUrl { get; set; }
     private JsonViewer JsonViewerInstance { get; set; }
     private MqttHelper mqttHelper { get; set; }
-    public class Dessert {
+    public class Dessert
+    {
         public string Name { get; set; }
     }
     private bool _showDrawer { get; set; }
@@ -86,16 +84,18 @@
 
         };
 
-    private async Task EditItem(Dessert item) {
+    private async Task EditItem(Dessert item)
+    {
         _showDrawer = true;
         _editedIndex = _desserts.IndexOf(item);
 
-        mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(),"",TokenHelper.CreateJwtToken(new Dictionary<string, object>(),"731543"));
+        mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(), "", TokenHelper.CreateJwtToken(new Dictionary<string, object>(), "731543"));
         await mqttHelper.ConnectClient(CallbackAsync, _desserts[_editedIndex].Name); //发布主题消息
-      
+
     }
 
-    private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e) {
+    private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e)
+    {
         var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
         await JsonViewerInstance.Render(deviceDataPointStr);
         await InvokeAsync(StateHasChanged);
@@ -104,7 +104,8 @@
 
     public void Dispose()
     {
-        if (mqttHelper != null) {
+        if (mqttHelper != null)
+        {
             mqttHelper.Disconnect_Client().GetAwaiter().GetResult();
         }
     }

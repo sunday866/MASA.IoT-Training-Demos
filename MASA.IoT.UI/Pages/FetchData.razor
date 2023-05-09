@@ -1,19 +1,26 @@
 ﻿@page "/fetchdata"
 
 @using MASA.IoT.Common.Helper
+@using MASA.IoT.Core.Contract.Device
+@using MASA.IoT.UI.Caller
 @using MQTTnet.Client
 @using Texnomic.Blazor.JsonViewer
+@using MASA.IoT.UI.Components
 @implements IDisposable
 
-<PageTitle>Weather forecast</PageTitle>
+<PageTitle>设备列表</PageTitle>
 
 <h1>设备列表</h1>
-
-<MDataTable Headers="_headers" Items="_desserts" ItemsPerPage="5" Class="elevation-1">
+<MDataTable Headers="_headers" Items="deviceList"  Class="elevation-1" Page="_options.PageIndex"  ItemsPerPage="_options.PageSize"
+            ServerItemsLength="_totalCount">
     <ItemColContent>
         @if (context.Header.Value == "actions")
         {
             <MIcon Small Class="mr-2" OnClick="()=>EditItem(context.Item)">mdi-pencil</MIcon>
+        }
+        else if (context.Header.Value == nameof(DeviceListViewModel.OnLineStates))
+        {
+            <EnumChip Value="context.Item.OnLineStates"></EnumChip>
         }
         else
         {
@@ -21,7 +28,7 @@
         }
     </ItemColContent>
 </MDataTable>
-<PDrawer Width="500" Value="_showDrawer" ValueChanged="DrwerChangedAsync">
+<PDrawer Width="500" Value="ShowDrawer" ValueChanged="DrwerChangedAsync">
     <ActivatorContent>
 
     </ActivatorContent>
@@ -31,66 +38,84 @@
 </PDrawer>
 
 @code {
+
     private string mqttUrl { get; set; }
+    private bool _loading = false;
+    private int _totalCount = 0;
     private JsonViewer JsonViewerInstance { get; set; }
     private MqttHelper mqttHelper { get; set; }
-    public class Dessert
-    {
-        public string Name { get; set; }
-    }
-    private bool _showDrawer { get; set; }
+    private List<DeviceListViewModel> deviceList { get; set; } = new ();
+    private bool ShowDrawer { get; set; }
     private int _editedIndex;
+    [Inject]
+    private DeviceCaller _deviceCaller { get; set; }
+
+    private readonly DeviceListOption _options = new ()
+    {
+        PageIndex = 1,
+        PageSize = 10,
+    };
 
     protected override async Task OnInitializedAsync()
     {
         mqttUrl = AppHelper.ReadAppSettings("MqttUrl");
     }
-    private List<DataTableHeader<Dessert>> _headers = new List<DataTableHeader<Dessert>>
+
+    private async Task GetData()
+    {
+        var sss= await _deviceCaller.DeviceListAsync(new DeviceListOption { PageIndex = 1, PageSize = 10, ProductId = new Guid("C85EF7E5-2E43-4BD2-A939-07FE5EA3F459") });
+        deviceList = sss.Result.ToList();
+    }
+    private List<DataTableHeader<DeviceListViewModel>> _headers = new()
                         {
            new ()
            {
             Text= "设备名称",
             Align= DataTableHeaderAlign.Start,
             Sortable= false,
-            Value= nameof(Dessert.Name)
+            Value= nameof(DeviceListViewModel.DeviceName)
           },
-                    new (){ Text= "Actions", Value= "actions",Sortable=false,Width="100px",Align=DataTableHeaderAlign.Center, }
+                            new ()
+                            {
+                                Text= "在线状态",
+                                Align= DataTableHeaderAlign.Start,
+                                Sortable= false,
+                                Value= nameof(DeviceListViewModel.OnLineStates)
+                            },
+           new (){ Text= "Actions", Value= "actions",Sortable=false,Width="100px",Align=DataTableHeaderAlign.Center, }
 
         };
 
     private async Task DrwerChangedAsync()
     {
-        _showDrawer = !_showDrawer;
-        if (!_showDrawer)
+        ShowDrawer = !ShowDrawer;
+        if (!ShowDrawer)
         {
             await mqttHelper.Disconnect_Client();
         }
     }
 
-    private List<Dessert> _desserts = new List<Dessert>
-                        {
-           new Dessert
-           {
-              Name= "Device01",
-           },
-                new Dessert
-                {
-                    Name= "Device02",
-                },
-                new Dessert
-                {
-                    Name= "Device03",
-                },
 
-        };
-
-    private async Task EditItem(Dessert item)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _showDrawer = true;
-        _editedIndex = _desserts.IndexOf(item);
+        if (firstRender)
+        {
+            var paginatedList= await _deviceCaller.DeviceListAsync(new DeviceListOption { PageIndex = 1, PageSize = 10, ProductId = new Guid("C85EF7E5-2E43-4BD2-A939-07FE5EA3F459") });
+            deviceList = paginatedList.Result.ToList();
+            _totalCount = (int)paginatedList.Total;
+            StateHasChanged();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
 
-        mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(), "", TokenHelper.CreateJwtToken(new Dictionary<string, object>(), "731543"));
-        await mqttHelper.ConnectClient(CallbackAsync, _desserts[_editedIndex].Name); //发布主题消息
+
+    private async Task EditItem(DeviceListViewModel item)
+    {
+        //ShowDrawer = true;
+        //_editedIndex = _desserts.IndexOf(item);
+
+        //mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(), "", TokenHelper.CreateJwtToken(new Dictionary<string, object>(), "731543"));
+        //await mqttHelper.ConnectClient(CallbackAsync, _desserts[_editedIndex].Name); //发布主题消息
 
     }
 

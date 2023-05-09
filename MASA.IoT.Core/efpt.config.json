@@ -15,6 +15,10 @@
    "SelectedToBeGenerated": 0,
    "Tables": [
       {
+         "Name": "[dbo].[IoTDeviceExtend]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[IoTDeviceInfo]",
          "ObjectType": 0
       },

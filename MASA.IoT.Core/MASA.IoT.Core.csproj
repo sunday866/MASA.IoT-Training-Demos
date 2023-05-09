@@ -9,13 +9,12 @@
   <ItemGroup>
     <PackageReference Include="Dapr.AspNetCore" Version="1.10.0" />
     <PackageReference Include="Flurl.Http" Version="4.0.0-pre3" />
-    <PackageReference Include="Masa.Blazor" Version="1.0.0-preview.12" />
-    <PackageReference Include="Masa.BuildingBlocks.Exceptions" Version="1.0.0-preview.26" />
-    <PackageReference Include="Masa.Contrib.Data.EFCore.SqlServer" Version="1.0.0-preview.26" />
-    <PackageReference Include="Masa.Contrib.Data.EntityFrameworkCore.SqlServer" Version="0.5.1" />
-    <PackageReference Include="Masa.Contrib.Data.Mapping.Mapster" Version="1.0.0-preview.26" />
-    <PackageReference Include="Masa.Contrib.Development.DaprStarter" Version="1.0.0-preview.26" />
-    <PackageReference Include="Masa.Contrib.Development.DaprStarter.AspNetCore" Version="1.0.0-preview.26" />
+    <PackageReference Include="Masa.BuildingBlocks.Exceptions" Version="1.0.0-rc.1.1" />
+    <PackageReference Include="Masa.Contrib.Data.EFCore.SqlServer" Version="1.0.0-rc.1.1" />
+    <PackageReference Include="Masa.Contrib.Data.EntityFrameworkCore.SqlServer" Version="0.6.0-preview.1" />
+    <PackageReference Include="Masa.Contrib.Data.Mapping.Mapster" Version="1.0.0-rc.1.1" />
+    <PackageReference Include="Masa.Contrib.Development.DaprStarter" Version="1.0.0-rc.1.1" />
+    <PackageReference Include="Masa.Contrib.Development.DaprStarter.AspNetCore" Version="1.0.0-rc.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">

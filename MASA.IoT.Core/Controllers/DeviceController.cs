@@ -52,7 +52,7 @@ namespace MASA.IoT.WebApi.Controllers
         /// <param name="options"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<PaginatedListBase<DeviceListViewModel>> GetDeviceListBaseAsync([FromBody] DeviceListOption options)
+        public async Task<PaginatedListBase<DeviceListViewModel>> DeviceListAsync([FromBody] DeviceListOption options)
         {
            return await _deviceHandler.GetDeviceListBaseAsync(options);
         }

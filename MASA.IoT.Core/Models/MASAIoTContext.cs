@@ -13,6 +13,8 @@ public partial class MASAIoTContext : DbContext
     {
     }
 
+    public virtual DbSet<IoTDeviceExtend> IoTDeviceExtend { get; set; }
+
     public virtual DbSet<IoTDeviceInfo> IoTDeviceInfo { get; set; }
 
     public virtual DbSet<IoTDevicewares> IoTDevicewares { get; set; }
@@ -21,6 +23,15 @@ public partial class MASAIoTContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<IoTDeviceExtend>(entity =>
+        {
+            entity.Property(e => e.DeviceInfoId).ValueGeneratedNever();
+
+            entity.HasOne(d => d.DeviceInfo).WithOne(p => p.IoTDeviceExtend)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_IoTDeviceExtend_IoTDeviceInfo");
+        });
+
         modelBuilder.Entity<IoTDeviceInfo>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();

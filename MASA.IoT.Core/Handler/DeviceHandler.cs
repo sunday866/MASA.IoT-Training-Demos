@@ -86,21 +86,37 @@ namespace MASA.IoT.WebApi.Handler
         /// <returns></returns>
         public async Task UpdateDeviceOnlineStatusAsync(string deviceName, OnLineStates onlineStatus)
         {
-            var device = await _ioTDbContext.IoTDeviceInfo.AsNoTracking()
+            var device = await _ioTDbContext.IoTDeviceInfo.Include(o => o.IoTDeviceExtend).AsNoTracking()
                 .FirstOrDefaultAsync(o => o.DeviceName == deviceName);
             if (device == null)
             {
                 return;
             }
-            if (device.OnLineStates != (int)onlineStatus)
+            else
             {
-                device.OnLineStates = (int)onlineStatus;
+                if (device.IoTDeviceExtend == null) //扩展表为空
+                {
+                    device.IoTDeviceExtend = new IoTDeviceExtend
+                    {
+                        DeviceInfoId = device.Id,
+                        OnLineStates = (int)onlineStatus,
+                    };
+                    _ioTDbContext.Attach(device.IoTDeviceExtend);
+                    
+                    _ioTDbContext.Entry(device.IoTDeviceExtend).State = EntityState.Added;
+                    _ioTDbContext.Entry(device.IoTDeviceExtend).Property(o => o.OnLineStates).IsModified = true;
+                    await _ioTDbContext.SaveChangesAsync();
+                }
+                if (device.IoTDeviceExtend.OnLineStates != (int)onlineStatus)         //在线状态不一致
+                {
+                    device.IoTDeviceExtend.OnLineStates = (int)onlineStatus;
 
-                _ioTDbContext.Attach(device);
-                //防止更新其他字段
-                _ioTDbContext.Entry(device).State = EntityState.Unchanged;
-                _ioTDbContext.Entry(device).Property(o => o.OnLineStates).IsModified = true;
-                await _ioTDbContext.SaveChangesAsync();
+                    _ioTDbContext.Attach(device.IoTDeviceExtend);
+                    //防止更新其他字段
+                    _ioTDbContext.Entry(device.IoTDeviceExtend).State = EntityState.Unchanged;
+                    _ioTDbContext.Entry(device.IoTDeviceExtend).Property(o => o.OnLineStates).IsModified = true;
+                    await _ioTDbContext.SaveChangesAsync();
+                }
             }
         }
 
@@ -177,13 +193,15 @@ namespace MASA.IoT.WebApi.Handler
                     on d.ProductInfoId equals p.Id
                     into productInfo
                 from p in productInfo.DefaultIfEmpty()
+                join de in _ioTDbContext.IoTDeviceExtend
+                    on d.Id equals de.DeviceInfoId
                 where p.Id.Equals(options.ProductId)
 
                 select new DeviceListViewModel
                 {
                     Id = d.Id,
                     DeviceName = d.DeviceName,
-
+                    OnLineStates = (OnLineStates)de.OnLineStates
                 }).Distinct().OrderByDescending(x => x.DeviceName).GetPaginatedListAsync(new PaginatedOptions
             {
                 Page = options.PageIndex,

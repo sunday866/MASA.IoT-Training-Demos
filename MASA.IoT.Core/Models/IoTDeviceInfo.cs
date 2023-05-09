@@ -23,7 +23,8 @@ public partial class IoTDeviceInfo
     [StringLength(50)]
     public string Password { get; set; }
 
-    public int OnLineStates { get; set; }
+    [InverseProperty("DeviceInfo")]
+    public virtual IoTDeviceExtend IoTDeviceExtend { get; set; }
 
     [ForeignKey("ProductInfoId")]
     [InverseProperty("IoTDeviceInfo")]

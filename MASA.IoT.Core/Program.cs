@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddDapr();
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddDaprStarter(builder.Configuration.GetSection("DaprOptions"),false);
+    builder.Services.AddDaprStarter();
 }
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

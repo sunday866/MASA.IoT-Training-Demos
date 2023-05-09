@@ -1,0 +1,29 @@
+﻿@namespace MASA.IoT.UI.Components
+@using MASA.IoT.Core.Contract.Enum
+@typeparam TValue where TValue : Enum
+
+<ColorChip Value="Value" Colors="Colors" Small="Small" @onclick="OnClick"></ColorChip>
+
+@code {
+
+    [Parameter]
+    public bool Small { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public TValue Value { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    private static Dictionary<Type, string[]> _enumColorsDic = new()
+    {
+        {typeof(OnLineStates), new[] {"red", "green"}},
+    };
+
+    private string[] Colors =>
+        _enumColorsDic.TryGetValue(Value.GetType(), out var value)
+            ? value
+            : Array.Empty<string>();
+
+}

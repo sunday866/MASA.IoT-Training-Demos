@@ -129,15 +129,15 @@ namespace MASA.IoT.WebApi.Handler
         /// </returns>
         private async Task<DeviceRegResponse?> GetDeviceRegInfoAsync(DeviceRegRequest request)
         {
-            var deviceware = await _ioTDbContext.IoTDevicewares.FirstOrDefaultAsync(o => o.ProductCode == request.ProductCode && o.UUID == request.UUID);
+            var deviceWare = await _ioTDbContext.IoTDevicewares.FirstOrDefaultAsync(o => o.ProductCode == request.ProductCode && o.UUID == request.UUID);
 
-            if (deviceware == null)
+            if (deviceWare == null)
             {
                 return null;
             }
             else
             {
-                var deviceInfo = await _ioTDbContext.IoTDeviceInfo.FirstAsync(o => o.DeviceName == deviceware.DeviceName);
+                var deviceInfo = await _ioTDbContext.IoTDeviceInfo.FirstAsync(o => o.DeviceName == deviceWare.DeviceName);
 
                 return new DeviceRegResponse
                 {
@@ -160,9 +160,9 @@ namespace MASA.IoT.WebApi.Handler
         /// </returns>
         private async Task<string> GenerateDeviceNameAsync(string supplyNo, string productCode, string uuid)
         {
-            var lastDeviceware = await _ioTDbContext.IoTDevicewares.Where(o => o.ProductCode == productCode).OrderByDescending(o => o.CreationTime).FirstOrDefaultAsync();
+            var lastDeviceWare = await _ioTDbContext.IoTDevicewares.Where(o => o.ProductCode == productCode).OrderByDescending(o => o.CreationTime).FirstOrDefaultAsync();
 
-            var newDeviceware = new IoTDevicewares
+            var newDeviceWare = new IoTDevicewares
             {
                 Id = Guid.NewGuid(),
                 UUID = uuid,
@@ -170,18 +170,18 @@ namespace MASA.IoT.WebApi.Handler
                 CreationTime = DateTime.Now
             };
 
-            if (lastDeviceware != null && lastDeviceware.DeviceName.StartsWith(supplyNo + DateTime.Today.ToString("yyyyMMdd")))
+            if (lastDeviceWare != null && lastDeviceWare.DeviceName.StartsWith(supplyNo + DateTime.Today.ToString("yyyyMMdd")))
             {
-                newDeviceware.DeviceName = (long.Parse(lastDeviceware.DeviceName) + 1).ToString();
+                newDeviceWare.DeviceName = (long.Parse(lastDeviceWare.DeviceName) + 1).ToString();
             }
             else
             {
-                newDeviceware.DeviceName = supplyNo + DateTime.Today.ToString("yyyyMMdd") + "0001";
+                newDeviceWare.DeviceName = supplyNo + DateTime.Today.ToString("yyyyMMdd") + "0001";
             }
-            await _ioTDbContext.IoTDevicewares.AddAsync(newDeviceware);
+            await _ioTDbContext.IoTDevicewares.AddAsync(newDeviceWare);
             await _ioTDbContext.SaveChangesAsync();
 
-            return newDeviceware.DeviceName;
+            return newDeviceWare.DeviceName;
         }
 
 

@@ -13,7 +13,7 @@ namespace MASA.IoT.Common.Helper
         private IMqttClient mqttClient;
         private MqttClientOptions mqttClientOptions;
         private MqttClientSubscribeOptions mqttClientSubscribeOptions;
-        public MqttHelper(string mqttUrl, string clientID,string userName,string passWord)
+        public MqttHelper(string mqttUrl, string clientID, string userName, string passWord)
         {
             mqttFactory = new MqttFactory();
             mqttClient = mqttFactory.CreateMqttClient();
@@ -31,29 +31,24 @@ namespace MASA.IoT.Common.Helper
             {
                 await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
             }
-            await mqttClient.PublishStringAsync($"samples/topic/cmd{topicIndex}", stringdata);
+            await mqttClient.PublishStringAsync($"topic/cmd{topicIndex}", stringdata);
         }
-        public async Task ConnectClient(Func<MqttApplicationMessageReceivedEventArgs, Task> callback, string topic) //订阅客户端
+        public async Task ConnectClient(Func<MqttApplicationMessageReceivedEventArgs, Task> callback, string topic) //连接并订阅客户端
         {
-            /*
-             * This sample creates a simple MQTT client and connects to a public broker using a WebSocket connection.
-             * 
-             * This is a modified version of the sample _Connect_Client_! See other sample for more details.
-             */
             mqttClientSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
-                //.WithTopicFilter(f => { f.WithTopic($"v1/devices/{userName}/telemetry"); })
                 .WithTopicFilter(f => { f.WithTopic(topic); })
                 .Build();
 
             var response = await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
-
-            Console.WriteLine($"The MQTT client with topic:{topic} is connected.");
-
-            await Task.Delay(500);
-            //mqttClient.ApplicationMessageReceivedAsync -= callback;
-            mqttClient.ApplicationMessageReceivedAsync += callback;
-            var response2 = await mqttClient.SubscribeAsync(mqttClientSubscribeOptions, CancellationToken.None);
+            if (response.ResultCode == MqttClientConnectResultCode.Success)
+            {
+                Console.WriteLine($"The MQTT client with topic:{topic} is connected.");
+                await Task.Delay(500);
+                mqttClient.ApplicationMessageReceivedAsync += callback;
+                await mqttClient.SubscribeAsync(mqttClientSubscribeOptions, CancellationToken.None);
+            }
         }
+
         public async Task Disconnect_Client() //订阅客户端
         {
             if (mqttClient.IsConnected)

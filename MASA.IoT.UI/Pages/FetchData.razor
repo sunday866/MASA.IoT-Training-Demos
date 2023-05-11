@@ -39,7 +39,8 @@
 
 @code {
 
-    private string mqttUrl { get; set; }
+    private string mqttUrl = AppHelper.ReadAppSettings("MqttUrl");
+    private string jwtSecret = AppHelper.ReadAppSettings("JwtSecret");
     private bool _loading = false;
     private int _totalCount = 0;
     private JsonViewer JsonViewerInstance { get; set; }
@@ -56,10 +57,7 @@
         PageSize = 10,
     };
 
-    protected override async Task OnInitializedAsync()
-    {
-        mqttUrl = AppHelper.ReadAppSettings("MqttUrl");
-    }
+
 
     private async Task GetData()
     {
@@ -114,7 +112,7 @@
         //ShowDrawer = true;
         //_editedIndex = _desserts.IndexOf(item);
 
-        //mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(), "", TokenHelper.CreateJwtToken(new Dictionary<string, object>(), "731543"));
+        //mqttHelper = new MqttHelper(mqttUrl, Guid.NewGuid().ToString(), "", TokenHelper.CreateJwtToken(new Dictionary<string, object>(), jwtSecret));
         //await mqttHelper.ConnectClient(CallbackAsync, _desserts[_editedIndex].Name); //发布主题消息
 
     }

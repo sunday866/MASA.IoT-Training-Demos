@@ -11,9 +11,8 @@ public class MQHostedService : IHostedService
 {
 
     private readonly HubAppSettings _appSettings;
-    private readonly Dapr.Client.DaprClient daprClient;
-    public MQHostedService(
-        IOptions<HubAppSettings> appSettings)
+    private readonly DaprClient daprClient;
+    public MQHostedService(IOptions<HubAppSettings> appSettings)
     {
         daprClient = new DaprClientBuilder().Build();
         _appSettings = appSettings.Value;
@@ -27,29 +26,28 @@ public class MQHostedService : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var mqttHelper = new MqttHelper(_appSettings.MqttSetting.MqttUrl, "IoTHub", _appSettings.MqttSetting.UserName, _appSettings.MqttSetting.Password);
-        var daprClient = new DaprClientBuilder().Build();
+ 
         await mqttHelper.ConnectClient(CallbackAsync, _appSettings.MqttSetting.Topic);
-        Console.ReadKey();
+
     }
     private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e)
     {
         var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
+        
         Console.WriteLine(deviceDataPointStr);
         var pubSubOptions = new PubSubOptions
         {
-            DeviceOneNetId = "123",
+            DeviceName = e.ApplicationMessage.Topic[6..],
             Msg = deviceDataPointStr,
-            Timestamp = 123,
             PubTime = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds(),
             TrackId = Guid.NewGuid()
-        };
+        };                            
         try
         {
-            await daprClient.PublishEventAsync("pubsub", "BusinessMQOperation", pubSubOptions);
+            await daprClient.PublishEventAsync("pubsub", "DeviceMessage", pubSubOptions);
         }
         catch (Exception ex)
         {
-
             Console.WriteLine(ex.Message);
         }
 

@@ -17,17 +17,17 @@ namespace MASA.IoT.Common
         /// <summary>
         /// 
         /// </summary>
-        public string DeviceOneNetId { get; set; }
+        public string DeviceName { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public string Mode { get; set; }
+        //public string Mode { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public ulong Timestamp { get; set; }
+        //public ulong Timestamp { get; set; }
 
         /// <summary>
         /// MQ数据

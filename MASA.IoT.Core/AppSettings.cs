@@ -15,5 +15,6 @@
         public string Url { get; set; }
         public string ApiKey { get; set; }
         public string SecretKey { get; set; }
+        public string JwtSecret { get; set; }
     }
 }

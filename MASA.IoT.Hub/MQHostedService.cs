@@ -31,11 +31,11 @@ public class MQHostedService : IHostedService
     private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e)
     {
         var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.PayloadSegment);
-        
+
         Console.WriteLine(deviceDataPointStr);
         var pubSubOptions = new PubSubOptions
         {
-            DeviceName = e.ApplicationMessage.Topic[6..],
+            DeviceName = e.ApplicationMessage.Topic[6..^3],
             Msg = deviceDataPointStr,
             PubTime = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds(),
             TrackId = Guid.NewGuid()

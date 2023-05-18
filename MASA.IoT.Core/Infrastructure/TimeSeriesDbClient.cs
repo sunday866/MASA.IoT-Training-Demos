@@ -11,7 +11,7 @@ namespace MASA.IoT.Core.Infrastructure
         private readonly string _bucket;
         private readonly string _org;
         private readonly AppSettings _appSettings;
-
+        
         public TimeSeriesDbClient(IOptions<AppSettings> settings)
         {
             _appSettings = settings.Value;
@@ -30,6 +30,7 @@ namespace MASA.IoT.Core.Infrastructure
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -44,6 +45,7 @@ namespace MASA.IoT.Core.Infrastructure
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }

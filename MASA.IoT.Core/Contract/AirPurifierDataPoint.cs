@@ -1,4 +1,6 @@
-﻿using InfluxDB.Client.Core;
+﻿using System.Runtime.Serialization;
+using InfluxDB.Client.Core;
+using Newtonsoft.Json;
 
 namespace MASA.IoT.Core.Contract
 {
@@ -27,9 +29,14 @@ namespace MASA.IoT.Core.Contract
         /// 湿度
         /// </summary>
         [Column("Humidity")] public double? Humidity { get; set; }
+
+
+        [JsonProperty(propertyName: "Ts")]
+        public long Timestamp { get; set; }
+
         /// <summary>
         /// 时间
         /// </summary>
-        [Column(IsTimestamp = true)] public DateTime Time { get; set; }
+        [Column(IsTimestamp = true)] public DateTime Time => new(new DateTime(1970, 1, 1, 8, 0, 0).Ticks + Timestamp * 10000); //转化为DateTime
     }
 }

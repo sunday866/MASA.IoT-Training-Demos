@@ -39,6 +39,7 @@ namespace MASA.IoT.Core.Handler
                 var airPurifierDataPoint = JsonConvert.DeserializeObject<AirPurifierDataPoint>(pubSubOptions.Msg);
 
                 airPurifierDataPoint.ProductId = device.ProductInfoId;
+  
                 return _timeSeriesDbClient.WriteMeasurement<AirPurifierDataPoint>(airPurifierDataPoint);
 
             }

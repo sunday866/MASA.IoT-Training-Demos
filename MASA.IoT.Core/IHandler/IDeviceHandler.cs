@@ -1,9 +1,10 @@
 ﻿using MASA.IoT.Core.Contract.Device;
-using Masa.Utils.Models;
 using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.WebApi.Contract;
+using Masa.Utils.Models;
+using MASA.IoT.Common;
 
-namespace MASA.IoT.WebApi.IHandler
+namespace MASA.IoT.Core.IHandler
 {
     public interface IDeviceHandler
     {
@@ -11,5 +12,6 @@ namespace MASA.IoT.WebApi.IHandler
 
         Task UpdateDeviceOnlineStatusAsync(string deviceName, OnLineStates onlineStatus);
         Task<PaginatedListBase<DeviceListViewModel>> GetDeviceListBaseAsync(DeviceListOption options);
+        Task<bool> WriteMeasurementAsync<T>(PubSubOptions pubSubOptions);
     }
 }

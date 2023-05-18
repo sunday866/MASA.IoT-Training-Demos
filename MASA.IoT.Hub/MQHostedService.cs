@@ -3,18 +3,16 @@ using MASA.IoT.Common;
 using MASA.IoT.Common.Helper;
 using Microsoft.Extensions.Options;
 using MQTTnet.Client;
-using Newtonsoft.Json.Linq;
 
 namespace MASA.IoT.Hub;
 
 public class MQHostedService : IHostedService
 {
-
     private readonly HubAppSettings _appSettings;
-    private readonly DaprClient daprClient;
+    private readonly DaprClient _daprClient;
     public MQHostedService(IOptions<HubAppSettings> appSettings)
     {
-        daprClient = new DaprClientBuilder().Build();
+        _daprClient = new DaprClientBuilder().Build();
         _appSettings = appSettings.Value;
     }
 
@@ -32,7 +30,7 @@ public class MQHostedService : IHostedService
     }
     private async Task CallbackAsync(MqttApplicationMessageReceivedEventArgs e)
     {
-        var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.Payload);
+        var deviceDataPointStr = System.Text.Encoding.Default.GetString(e.ApplicationMessage.PayloadSegment);
         
         Console.WriteLine(deviceDataPointStr);
         var pubSubOptions = new PubSubOptions
@@ -44,7 +42,7 @@ public class MQHostedService : IHostedService
         };                            
         try
         {
-            await daprClient.PublishEventAsync("pubsub", "DeviceMessage", pubSubOptions);
+            await _daprClient.PublishEventAsync("pubsub", "DeviceMessage", pubSubOptions);
         }
         catch (Exception ex)
         {

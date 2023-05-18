@@ -1,7 +1,4 @@
-﻿using JWT;
-using JWT.Algorithms;
-using JWT.Serializers;
-using MQTTnet;
+﻿using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Formatter;
 
@@ -9,51 +6,63 @@ namespace MASA.IoT.Common.Helper
 {
     public class MqttHelper
     {
-        private MqttFactory mqttFactory;
-        private IMqttClient mqttClient;
-        private MqttClientOptions mqttClientOptions;
-        private MqttClientSubscribeOptions mqttClientSubscribeOptions;
+        private MqttFactory _mqttFactory;
+        private IMqttClient _mqttClient;
+        private MqttClientOptions _mqttClientOptions;
+        private MqttClientSubscribeOptions _mqttClientSubscribeOptions;
+
         public MqttHelper(string mqttUrl, string clientID, string userName, string passWord)
         {
-            mqttFactory = new MqttFactory();
-            mqttClient = mqttFactory.CreateMqttClient();
-            mqttClientOptions = new MqttClientOptionsBuilder()
+            _mqttFactory = new MqttFactory();
+            _mqttClient = _mqttFactory.CreateMqttClient();
+            _mqttClientOptions = new MqttClientOptionsBuilder()
                                   .WithTcpServer(mqttUrl)
               .WithCredentials(userName, passWord).WithProtocolVersion(MqttProtocolVersion.V500).Build();
 
-            mqttClientOptions.ClientId = clientID;
+            _mqttClientOptions.ClientId = clientID;
         }
 
 
         public async Task SendCmdAsync(string stringdata, string topicIndex)  //发布客户端的消息
         {
-            if (!mqttClient.IsConnected)
+            if (!_mqttClient.IsConnected)
             {
-                await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+                await _mqttClient.ConnectAsync(_mqttClientOptions, CancellationToken.None);
             }
-            await mqttClient.PublishStringAsync($"topic/cmd{topicIndex}", stringdata);
+            await _mqttClient.PublishStringAsync($"topic/cmd{topicIndex}", stringdata);
         }
-        public async Task ConnectClient(Func<MqttApplicationMessageReceivedEventArgs, Task> callback, string topic) //连接并订阅客户端
+
+        /// <summary>
+        /// 连接并订阅Topic
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="topic"></param>
+        /// <returns></returns>
+        public async Task ConnectClient(Func<MqttApplicationMessageReceivedEventArgs, Task> callback, string topic) 
         {
-            mqttClientSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
+            _mqttClientSubscribeOptions = _mqttFactory.CreateSubscribeOptionsBuilder()
                 .WithTopicFilter(f => { f.WithTopic(topic); })
                 .Build();
 
-            var response = await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+            var response = await _mqttClient.ConnectAsync(_mqttClientOptions, CancellationToken.None);
             if (response.ResultCode == MqttClientConnectResultCode.Success)
             {
                 Console.WriteLine($"The MQTT client with topic:{topic} is connected.");
                 await Task.Delay(500);
-                mqttClient.ApplicationMessageReceivedAsync += callback;
-                await mqttClient.SubscribeAsync(mqttClientSubscribeOptions, CancellationToken.None);
+                _mqttClient.ApplicationMessageReceivedAsync += callback;
+                await _mqttClient.SubscribeAsync(_mqttClientSubscribeOptions, CancellationToken.None);
             }
         }
 
-        public async Task Disconnect_Client() //订阅客户端
+        /// <summary>
+        /// 断开连接
+        /// </summary>
+        /// <returns></returns>
+        public async Task Disconnect_Client() 
         {
-            if (mqttClient.IsConnected)
+            if (_mqttClient.IsConnected)
             {
-                await mqttClient.DisconnectAsync();
+                await _mqttClient.DisconnectAsync();
 
                 Console.WriteLine("The MQTT client is Disconnected.");
             }

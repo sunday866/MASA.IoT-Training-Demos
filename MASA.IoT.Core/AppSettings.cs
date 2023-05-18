@@ -4,6 +4,7 @@
     {
 
         public MqttSetting MqttSetting { get; set; }
+        public InfluxDBSetting InfluxDBSetting { get; set; }
         /// <summary>
         /// 环境
         /// </summary>
@@ -17,4 +18,12 @@
         public string SecretKey { get; set; }
         public string JwtSecret { get; set; }
     }
+    public class InfluxDBSetting
+    {
+        public string Url { get; set; }
+        public string Token { get; set; }
+        public string Bucket { get; set; }
+        public string Org { get; set; }
+    }
+
 }

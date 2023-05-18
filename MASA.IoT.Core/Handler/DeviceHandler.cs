@@ -1,24 +1,49 @@
-﻿using System.Linq.Expressions;
-using Masa.BuildingBlocks.Ddd.Domain.Repositories;
+﻿using Masa.BuildingBlocks.Ddd.Domain.Repositories;
 using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.Core.Contract.Enum;
+using MASA.IoT.Core.IHandler;
+using MASA.IoT.Core.Infrastructure;
 using MASA.IoT.WebApi.Contract;
 using MASA.IoT.WebApi.IHandler;
 using MASA.IoT.WebApi.Models.Models;
 using Masa.Utils.Models;
 using Microsoft.EntityFrameworkCore;
+using MASA.IoT.Common;
+using MASA.IoT.Core.Contract;
+using Newtonsoft.Json;
 
-namespace MASA.IoT.WebApi.Handler
+namespace MASA.IoT.Core.Handler
 {
     public class DeviceHandler : IDeviceHandler
     {
         private readonly MASAIoTContext _ioTDbContext;
         private readonly IMqttHandler _mqttHandler;
+        private readonly ITimeSeriesDbClient _timeSeriesDbClient;
 
-        public DeviceHandler(MASAIoTContext ioTDbContext, IMqttHandler mqttHandler)
+        public DeviceHandler(MASAIoTContext ioTDbContext, IMqttHandler mqttHandler, ITimeSeriesDbClient timeSeriesDbClient)
         {
             _ioTDbContext = ioTDbContext;
             _mqttHandler = mqttHandler;
+            _timeSeriesDbClient = timeSeriesDbClient;
+        }
+
+
+
+        public async Task<bool> WriteMeasurementAsync<T>(PubSubOptions pubSubOptions)
+        {
+            var device = await _ioTDbContext.IoTDeviceInfo.Include(o => o.ProductInfo).AsNoTracking()
+                .FirstOrDefaultAsync(o => o.DeviceName == pubSubOptions.DeviceName);
+
+            if (device != null && device.ProductInfo.ProductCode == "10001")  //空气净化器产品
+            {
+                var airPurifierDataPoint = JsonConvert.DeserializeObject<AirPurifierDataPoint>(pubSubOptions.Msg);
+
+                airPurifierDataPoint.ProductId = device.ProductInfoId;
+                airPurifierDataPoint.Time = pubSubOptions.PubTime;
+                return _timeSeriesDbClient.WriteMeasurement<AirPurifierDataPoint>(airPurifierDataPoint);
+
+            }
+            return false;
         }
 
         /// <summary>
@@ -102,7 +127,7 @@ namespace MASA.IoT.WebApi.Handler
                         OnLineStates = (int)onlineStatus,
                     };
                     _ioTDbContext.Attach(device.IoTDeviceExtend);
-                    
+
                     _ioTDbContext.Entry(device.IoTDeviceExtend).State = EntityState.Added;
                     _ioTDbContext.Entry(device.IoTDeviceExtend).Property(o => o.OnLineStates).IsModified = true;
                     await _ioTDbContext.SaveChangesAsync();
@@ -184,6 +209,11 @@ namespace MASA.IoT.WebApi.Handler
             return newDeviceWare.DeviceName;
         }
 
+        /// <summary>
+        /// 获取设备列表
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
 
         public async Task<PaginatedListBase<DeviceListViewModel>> GetDeviceListBaseAsync(DeviceListOption options)
         {
@@ -203,11 +233,11 @@ namespace MASA.IoT.WebApi.Handler
                     DeviceName = d.DeviceName,
                     OnLineStates = (OnLineStates)de.OnLineStates
                 }).Distinct().OrderByDescending(x => x.DeviceName).GetPaginatedListAsync(new PaginatedOptions
-            {
-                Page = options.PageIndex,
-                PageSize = options.PageSize,
-                Sorting = null
-            });
+                {
+                    Page = options.PageIndex,
+                    PageSize = options.PageSize,
+                    Sorting = null
+                });
 
             return res;
         }

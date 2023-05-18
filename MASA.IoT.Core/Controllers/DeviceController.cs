@@ -7,6 +7,7 @@ using MASA.IoT.Core.Contract;
 using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.Core.Contract.Mqtt;
 using MASA.IoT.Core.Contract.Device;
+using MASA.IoT.Core.IHandler;
 using Masa.Utils.Models;
 
 namespace MASA.IoT.WebApi.Controllers

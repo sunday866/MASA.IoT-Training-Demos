@@ -35,6 +35,7 @@ public class MQHostedService : IHostedService
         Console.WriteLine(deviceDataPointStr);
         var pubSubOptions = new PubSubOptions
         {
+            //修改一下获取设备名称的方式
             DeviceName = e.ApplicationMessage.Topic[6..^3],
             Msg = deviceDataPointStr,
             PubTime = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds(),
@@ -48,7 +49,6 @@ public class MQHostedService : IHostedService
         {
             Console.WriteLine(ex.Message);
         }
-
     }
     /// <summary>
     /// 结束

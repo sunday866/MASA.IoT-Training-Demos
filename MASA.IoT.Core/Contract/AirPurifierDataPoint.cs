@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-using InfluxDB.Client.Core;
+﻿using InfluxDB.Client.Core;
 using Newtonsoft.Json;
 
 namespace MASA.IoT.Core.Contract

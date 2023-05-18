@@ -28,7 +28,12 @@ namespace MASA.IoT.Core.Handler
         }
 
 
-
+        /// <summary>
+        /// 写入数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pubSubOptions"></param>
+        /// <returns></returns>
         public async Task<bool> WriteMeasurementAsync<T>(PubSubOptions pubSubOptions)
         {
             var device = await _ioTDbContext.IoTDeviceInfo.Include(o => o.ProductInfo).AsNoTracking()
@@ -39,7 +44,7 @@ namespace MASA.IoT.Core.Handler
                 var airPurifierDataPoint = JsonConvert.DeserializeObject<AirPurifierDataPoint>(pubSubOptions.Msg);
 
                 airPurifierDataPoint.ProductId = device.ProductInfoId;
-  
+
                 return _timeSeriesDbClient.WriteMeasurement<AirPurifierDataPoint>(airPurifierDataPoint);
 
             }

@@ -46,6 +46,7 @@ namespace MASA.IoT.Core.Handler
                 airPurifierDataPoint.ProductId = device.ProductInfoId;
 
                 return _timeSeriesDbClient.WriteMeasurement<AirPurifierDataPoint>(airPurifierDataPoint);
+                //return _timeSeriesDbClient.WritePoint(airPurifierDataPoint);
 
             }
             return false;

@@ -31,11 +31,11 @@ namespace MASA.IoT.Core.Contract
 
 
         [JsonProperty(propertyName: "Ts")]
-        public long Timestamp { get; set; }
+        [Column(IsTimestamp = true)] public long Timestamp { get; set; }
 
         /// <summary>
         /// 时间
         /// </summary>
-        [Column(IsTimestamp = true)] public DateTime Time => new(new DateTime(1970, 1, 1, 8, 0, 0).Ticks + Timestamp * 10000); //转化为DateTime
+        //[Column(IsTimestamp = true)] public DateTime Time => new(new DateTime(1970, 1, 1, 8, 0, 0).Ticks + Timestamp * 10000); //转化为DateTime
     }
 }

@@ -5,6 +5,7 @@
 
         public MqttSetting MqttSetting { get; set; }
         public InfluxDBSetting InfluxDBSetting { get; set; }
+        public NodeREDSetting nodeREDSetting { get; set; }
         /// <summary>
         /// 环境
         /// </summary>
@@ -24,6 +25,10 @@
         public string Token { get; set; }
         public string Bucket { get; set; }
         public string Org { get; set; }
+    }
+    public class NodeREDSetting
+    {
+        public string Url { get; set; }
     }
 
 }

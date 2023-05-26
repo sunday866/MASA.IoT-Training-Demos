@@ -1,4 +1,5 @@
 
+using MASA.IoT.Core.GateWay;
 using MASA.IoT.Core.Handler;
 using MASA.IoT.Core.IHandler;
 using MASA.IoT.Core.Infrastructure;
@@ -22,6 +23,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddMapster();
 builder.Services.AddTransient<IDeviceHandler, DeviceHandler>();
 builder.Services.AddTransient<IMqttHandler, MqttHandler>();
+builder.Services.AddTransient<IRulesEngineGateWay, RulesEngineGateWay>();
 builder.Services.AddSingleton<ITimeSeriesDbClient, TimeSeriesDbClient>();
 builder.Services.Configure<AppSettings>(builder.Configuration)
     .Configure<AppSettings>(settings => settings.EnvironmentName = builder.Environment.EnvironmentName);

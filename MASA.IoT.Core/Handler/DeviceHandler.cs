@@ -1,4 +1,5 @@
-﻿using Masa.BuildingBlocks.Ddd.Domain.Repositories;
+﻿using Dapr.Client.Autogen.Grpc.v1;
+using Masa.BuildingBlocks.Ddd.Domain.Repositories;
 using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.Core.IHandler;
@@ -50,6 +51,36 @@ namespace MASA.IoT.Core.Handler
 
             }
             return false;
+        }
+
+        public async Task<EChartsData> GetDeviceDataPointListAsync(GetDeviceDataPointListOption option)
+        {
+           return await _timeSeriesDbClient.GetDeviceDataPointListAsync(option);
+        }
+
+        public Task<bool> WriteTestDataAsync()
+        {
+            var productId = Guid.Parse("c85ef7e5-2e43-4bd2-a939-07fe5ea3f459");
+            var second = 0;
+
+            for (int i = 0; i < 86400; i++)
+            {
+                var timestamp =
+                    Convert.ToInt64((DateTime.UtcNow.AddSeconds(i * 5) -
+                                     new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
+                 _timeSeriesDbClient.WriteMeasurement<AirPurifierDataPoint>(new AirPurifierDataPoint
+                {
+                    DeviceName = "284202304230001",
+                    ProductId = productId,
+                    Pm_25 = new Random().Next(5,45),
+                    Temperature = new Random().Next(10,40),
+                    Humidity = new Random().Next(10,99),
+                    Timestamp = timestamp
+                 });
+                 second++;
+            }
+            return Task.FromResult(true);
+            
         }
 
         /// <summary>

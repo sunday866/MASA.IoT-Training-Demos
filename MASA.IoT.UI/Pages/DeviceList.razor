@@ -1,0 +1,39 @@
+﻿@page "/DeviceList"
+@using MASA.IoT.Core.Contract.Device
+@using MASA.IoT.UI.Components
+<PageTitle>设备列表</PageTitle>
+<h1>设备列表</h1>
+<MDataTable Headers="_headers" Items="deviceList" Class="elevation-1" Page="_options.PageIndex" ItemsPerPage="_options.PageSize"
+            ServerItemsLength="_totalCount">
+    <ItemColContent>
+        @if (context.Header.Value == "actions")
+        {
+            <MIcon Small Class="mr-2" OnClick="()=>EditItem(context.Item)">mdi-pencil</MIcon>
+        }
+        else if (context.Header.Value == nameof(DeviceListViewModel.OnLineStates))
+        {
+            <EnumChip Value="context.Item.OnLineStates"></EnumChip>
+        }
+        else
+        {
+            @context.Value
+        }
+    </ItemColContent>
+</MDataTable>
+<PDrawer Width="1000" Value="ShowDrawer" ValueChanged="DrawerChangedAsync">
+    <ActivatorContent>
+
+    </ActivatorContent>
+    <ChildContent>
+        <MTabs ValueChanged="TabsValueChanged">
+            <MTab>图表</MTab>
+        </MTabs>
+        <MTabsItems @bind-Value="_tabIndex">
+            <MTabItem>
+                <MCard Flat>
+                    <MECharts Class="rounded-3" Option="_optionECharts" Height="350"></MECharts>
+                </MCard>
+            </MTabItem>
+        </MTabsItems>
+    </ChildContent>
+</PDrawer>

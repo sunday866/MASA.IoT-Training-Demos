@@ -14,5 +14,9 @@ namespace MASA.IoT.UI.Caller
             return Caller.PostAsync<PaginatedListBase<DeviceListViewModel>>($"{BASE_API}/DeviceList", option);
         }
 
+        public Task<EChartsData?> GetDeviceDataPointList(GetDeviceDataPointListOption option)
+        {
+            return Caller.PostAsync<EChartsData>($"{BASE_API}/GetDeviceDataPointList", option);
+        }
     }
 }

@@ -57,5 +57,14 @@ namespace MASA.IoT.WebApi.Controllers
         {
            return await _deviceHandler.GetDeviceListBaseAsync(options);
         }
+
+        [HttpPost]
+
+        public async Task<EChartsData> GetDeviceDataPointListAsync([FromBody] GetDeviceDataPointListOption option)
+        {
+            return await _deviceHandler.GetDeviceDataPointListAsync(option);
+        }
+
+
     }
 }

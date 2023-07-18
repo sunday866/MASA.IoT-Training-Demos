@@ -27,8 +27,15 @@ namespace MASA.IoT.Core.Controllers
         public async Task DeviceMessageAsync([FromBody] PubSubOptions pubSubOptions)
         {
             await _rulesEngineGateWay.SendDataAsync(pubSubOptions);
-            //await _deviceHandler.WriteMeasurementAsync<PubSubOptions>(pubSubOptions);
-            //            Console.WriteLine($"Subscriber received, DeviceName:{pubSubOptions.DeviceName},Msg:{pubSubOptions.Msg}");
+            await _deviceHandler.WriteMeasurementAsync<PubSubOptions>(pubSubOptions);
+            Console.WriteLine($"Subscriber received, DeviceName:{pubSubOptions.DeviceName},Msg:{pubSubOptions.Msg}");
+        }
+
+        [HttpPost("WriteTestData")]
+        public async Task WriteTestDataAsync()
+        {
+            await _deviceHandler.WriteTestDataAsync();
+            //Console.WriteLine($"Subscriber received, DeviceName:{pubSubOptions.DeviceName},Msg:{pubSubOptions.Msg}");
         }
     }
 }

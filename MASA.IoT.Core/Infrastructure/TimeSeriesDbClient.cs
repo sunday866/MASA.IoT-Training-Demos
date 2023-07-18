@@ -2,6 +2,7 @@
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using MASA.IoT.Core.Contract;
+using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.WebApi;
 using Microsoft.Extensions.Options;
 
@@ -13,13 +14,49 @@ namespace MASA.IoT.Core.Infrastructure
         private readonly string _bucket;
         private readonly string _org;
         private readonly AppSettings _appSettings;
-        
+
         public TimeSeriesDbClient(IOptions<AppSettings> settings)
         {
             _appSettings = settings.Value;
             _org = _appSettings.InfluxDBSetting.Org;
             _bucket = _appSettings.InfluxDBSetting.Bucket;
             _client = new InfluxDBClient(_appSettings.InfluxDBSetting.Url, _appSettings.InfluxDBSetting.Token);
+        }
+
+        /// <summary>
+        /// |> range(start: ""{option.StartDateTime}"",stop:""{option.StopDateTime}"")  
+        /// </summary>             //and r._field == ""{option.FieldName}"" 
+        /// <param name="option"></param>
+        /// <returns></returns>
+        public async Task<EChartsData> GetDeviceDataPointListAsync(GetDeviceDataPointListOption option)
+        {
+            var query =
+                $@"from(bucket: ""{_bucket}"")
+                    |> range(start: {option.UTCStartDateTimeStr},stop:{option.UTCStopDateTimeStr})                                                                                          
+                    |> filter(fn: (r) => r._measurement == ""AirPurifierDataPoint"" 
+                    and r.ProductId == ""{option.ProductId}"" 
+                    and r.DeviceName == ""{option.DeviceName}"")
+                    |> aggregateWindow(every: 2h, fn: mean)";
+            var tables = await _client.GetQueryApi().QueryAsync(query, _org);
+            var fieldList = tables.SelectMany(table => table.Records).Select(o => o.GetField()).Distinct();
+            var eChartsData = new EChartsData
+            {
+                DeviceName = option.DeviceName,
+                FieldDataList = new List<FieldData>()
+            };
+            var fluxRecords = tables.SelectMany(table => table.Records);
+
+            foreach (var field in fieldList)
+            {
+                eChartsData.FieldDataList.Add(new FieldData
+                {
+                    FieldName = field,
+                    DateTimes = fluxRecords.Where(o => o.GetField()== field).Select(o => o.GetTime().Value.ToDateTimeUtc())
+                        .ToList(),
+                    Values = fluxRecords.Where(o => o.GetField() == field).Select(o => (double)(o.GetValue() ?? 0d)).ToList(),
+                });
+            }
+            return eChartsData;
         }
 
         public bool WriteMeasurement<T>(T measurement)
@@ -50,7 +87,7 @@ namespace MASA.IoT.Core.Infrastructure
                     .Field("Humidity", airPurifierDataPoint.Humidity)
                     .Timestamp(airPurifierDataPoint.Timestamp, WritePrecision.Ms);
                 using var writeApi = _client.GetWriteApi();
-                writeApi.WritePoint(point,_bucket, _org);
+                writeApi.WritePoint(point, _bucket, _org);
                 return true;
             }
             catch (Exception ex)

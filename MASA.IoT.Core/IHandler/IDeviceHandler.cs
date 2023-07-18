@@ -13,5 +13,7 @@ namespace MASA.IoT.Core.IHandler
         Task UpdateDeviceOnlineStatusAsync(string deviceName, OnLineStates onlineStatus);
         Task<PaginatedListBase<DeviceListViewModel>> GetDeviceListBaseAsync(DeviceListOption options);
         Task<bool> WriteMeasurementAsync<T>(PubSubOptions pubSubOptions);
+        Task<bool> WriteTestDataAsync();
+        Task<EChartsData> GetDeviceDataPointListAsync(GetDeviceDataPointListOption option);
     }
 }

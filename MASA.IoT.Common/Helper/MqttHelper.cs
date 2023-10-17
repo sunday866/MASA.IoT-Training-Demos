@@ -23,13 +23,22 @@ namespace MASA.IoT.Common.Helper
         }
 
 
-        public async Task SendCmdAsync(string stringdata, string topicIndex)  //发布客户端的消息
+        //public async Task SendCmdAsync(string productKey,string deviceName, string requestId,string stringData)  
+        //{
+        //    if (!_mqttClient.IsConnected)
+        //    {
+        //        await _mqttClient.ConnectAsync(_mqttClientOptions, CancellationToken.None);
+        //    }
+        //    await _mqttClient.PublishStringAsync($"rpc/{productKey}/{deviceName}/{requestId}", stringData);
+        //}
+
+        public async Task PublishStringAsync(string topic, string stringData)
         {
             if (!_mqttClient.IsConnected)
             {
                 await _mqttClient.ConnectAsync(_mqttClientOptions, CancellationToken.None);
             }
-            await _mqttClient.PublishStringAsync($"topic/cmd{topicIndex}", stringdata);
+            await _mqttClient.PublishStringAsync($"{topic}", stringData);
         }
 
         /// <summary>
@@ -38,7 +47,7 @@ namespace MASA.IoT.Common.Helper
         /// <param name="callback"></param>
         /// <param name="topic"></param>
         /// <returns></returns>
-        public async Task ConnectClient(Func<MqttApplicationMessageReceivedEventArgs, Task> callback, string topic) 
+        public async Task ConnectClient(Func<MqttApplicationMessageReceivedEventArgs, Task> callback, string topic)
         {
             _mqttClientSubscribeOptions = _mqttFactory.CreateSubscribeOptionsBuilder()
                 .WithTopicFilter(f => { f.WithTopic(topic); })
@@ -58,7 +67,7 @@ namespace MASA.IoT.Common.Helper
         /// 断开连接
         /// </summary>
         /// <returns></returns>
-        public async Task Disconnect_Client() 
+        public async Task Disconnect_Client()
         {
             if (_mqttClient.IsConnected)
             {

@@ -1,7 +1,12 @@
 ﻿@page "/DeviceList"
+
 @using MASA.IoT.Core.Contract.Device
+@using Texnomic.Blazor.JsonViewer
 @using MASA.IoT.UI.Components
+@implements IDisposable
+
 <PageTitle>设备列表</PageTitle>
+
 <h1>设备列表</h1>
 <MDataTable Headers="_headers" Items="deviceList" Class="elevation-1" Page="_options.PageIndex" ItemsPerPage="_options.PageSize"
             ServerItemsLength="_totalCount">
@@ -27,11 +32,17 @@
     <ChildContent>
         <MTabs ValueChanged="TabsValueChanged">
             <MTab>图表</MTab>
+            @*<MTab>MQTT</MTab>*@
         </MTabs>
         <MTabsItems @bind-Value="_tabIndex">
             <MTabItem>
                 <MCard Flat>
-                    <MECharts Class="rounded-3" Option="_optionECharts" Height="350"></MECharts>
+                    <MECharts Class="rounded-3" Option="_optionECharts" Height="350" Width="@("97%")"></MECharts>
+                </MCard>
+            </MTabItem>
+            <MTabItem>
+                <MCard Flat>
+                    <JsonViewer @ref="JsonViewerInstance"></JsonViewer>
                 </MCard>
             </MTabItem>
         </MTabsItems>

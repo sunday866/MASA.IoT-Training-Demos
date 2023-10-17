@@ -1,5 +1,7 @@
 ﻿using Dapr;
 using MASA.IoT.Common;
+using MASA.IoT.Core.Contract.Measurement;
+using MASA.IoT.Core.Contract.Mqtt;
 using MASA.IoT.Core.GateWay;
 using MASA.IoT.Core.Handler;
 using MASA.IoT.Core.IHandler;
@@ -31,11 +33,19 @@ namespace MASA.IoT.Core.Controllers
             Console.WriteLine($"Subscriber received, DeviceName:{pubSubOptions.DeviceName},Msg:{pubSubOptions.Msg}");
         }
 
+
+
         [HttpPost("WriteTestData")]
         public async Task WriteTestDataAsync()
         {
             await _deviceHandler.WriteTestDataAsync();
             //Console.WriteLine($"Subscriber received, DeviceName:{pubSubOptions.DeviceName},Msg:{pubSubOptions.Msg}");
+        }
+
+        [HttpPost("WriteRPCMessage")]
+        public async Task<RpcMessageResponse> WriteRPCMessageAsync(RpcMessageRequest request)
+        {
+           return  await _deviceHandler.WriteRPCMessageAsync(request);
         }
     }
 }

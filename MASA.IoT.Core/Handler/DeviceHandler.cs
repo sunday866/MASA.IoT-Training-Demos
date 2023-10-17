@@ -10,8 +10,9 @@ using MASA.IoT.WebApi.Models.Models;
 using Masa.Utils.Models;
 using Microsoft.EntityFrameworkCore;
 using MASA.IoT.Common;
-using MASA.IoT.Core.Contract;
+using MASA.IoT.Core.Contract.Measurement;
 using Newtonsoft.Json;
+using MASA.IoT.Core.Contract.Mqtt;
 
 namespace MASA.IoT.Core.Handler
 {
@@ -55,7 +56,67 @@ namespace MASA.IoT.Core.Handler
 
         public async Task<EChartsData> GetDeviceDataPointListAsync(GetDeviceDataPointListOption option)
         {
-           return await _timeSeriesDbClient.GetDeviceDataPointListAsync(option);
+            return await _timeSeriesDbClient.GetDeviceDataPointListAsync(option);
+        }
+
+
+        public async Task<RpcMessageResponse> PublishAndGetResponseAsync(RpcMessageRequest request)
+        {
+
+        }
+
+        /// <summary>
+        /// 写入RPC日志
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public bool WriteRpcMessage(RpcMessageRequest request)
+        {
+            var message = new RPCMessage
+            {
+                DeviceName = request.DeviceName,
+                ProductId = request.ProductId,
+                MessageType = MessageType.Down,
+                RequestId = Guid.NewGuid(),
+                MessageId = Guid.NewGuid(),
+                MessageData = request.MessageData,
+                Timestamp = Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds)
+            };
+            //记录下发指令
+            return _timeSeriesDbClient.WriteMeasurement(message);
+        }
+
+
+        private async Task<RpcMessageResponse> GetRpcMessageResponseAsync(GetRpcMessageOption option)
+        {
+            var deviceResponse = string.Empty;
+            for (int i = 0; i < option.Timeout * 10; i++) //100ms查询一次
+            {
+                deviceResponse = await _timeSeriesDbClient.GetRpcMessageResultAsync(option);
+                if (!string.IsNullOrEmpty(deviceResponse))
+                {
+                    break; //查询到设备返回消息就停止
+                }
+                await Task.Delay(100);
+            }
+
+            var result = new RpcMessageResponse();
+            if (!string.IsNullOrEmpty(deviceResponse))
+            {
+                var rpcMessageResponse = JsonConvert.DeserializeObject<RpcMessageResponse>(deviceResponse);
+                result.Success = rpcMessageResponse.Success;
+                result.ErrorMessage = rpcMessageResponse.ErrorMessage;
+                return rpcMessageResponse;
+            }
+            else
+            {
+                return new RpcMessageResponse //查询不到返回超时
+                {
+                    Success = false,
+                    ErrorMessage = "Cmd Timeout",
+                    MessageId = option.MessageId,
+                };
+            }
         }
 
         public Task<bool> WriteTestDataAsync()
@@ -68,19 +129,19 @@ namespace MASA.IoT.Core.Handler
                 var timestamp =
                     Convert.ToInt64((DateTime.UtcNow.AddSeconds(i * 5) -
                                      new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
-                 _timeSeriesDbClient.WriteMeasurement<AirPurifierDataPoint>(new AirPurifierDataPoint
+                _timeSeriesDbClient.WriteMeasurement<AirPurifierDataPoint>(new AirPurifierDataPoint
                 {
                     DeviceName = "284202304230001",
                     ProductId = productId,
-                    Pm_25 = new Random().Next(5,45),
-                    Temperature = new Random().Next(10,40),
-                    Humidity = new Random().Next(10,99),
+                    Pm_25 = new Random().Next(5, 45),
+                    Temperature = new Random().Next(10, 40),
+                    Humidity = new Random().Next(10, 99),
                     Timestamp = timestamp
-                 });
-                 second++;
+                });
+                second++;
             }
             return Task.FromResult(true);
-            
+
         }
 
         /// <summary>

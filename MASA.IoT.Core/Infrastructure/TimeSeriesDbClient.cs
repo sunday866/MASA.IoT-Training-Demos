@@ -1,8 +1,8 @@
 ﻿using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
-using MASA.IoT.Core.Contract;
 using MASA.IoT.Core.Contract.Device;
+using MASA.IoT.Core.Contract.Measurement;
 using MASA.IoT.WebApi;
 using Microsoft.Extensions.Options;
 
@@ -36,7 +36,8 @@ namespace MASA.IoT.Core.Infrastructure
                     |> filter(fn: (r) => r._measurement == ""AirPurifierDataPoint"" 
                     and r.ProductId == ""{option.ProductId}"" 
                     and r.DeviceName == ""{option.DeviceName}"")
-                    |> aggregateWindow(every: 2h, fn: mean)";
+                    |> aggregateWindow(every: 2h, fn: mean)
+                    |> fill(value: 0.0)";
             var tables = await _client.GetQueryApi().QueryAsync(query, _org);
             var fieldList = tables.SelectMany(table => table.Records).Select(o => o.GetField()).Distinct();
             var eChartsData = new EChartsData
@@ -53,12 +54,32 @@ namespace MASA.IoT.Core.Infrastructure
                     FieldName = field,
                     DateTimes = fluxRecords.Where(o => o.GetField()== field).Select(o => o.GetTime().Value.ToDateTimeUtc())
                         .ToList(),
-                    Values = fluxRecords.Where(o => o.GetField() == field).Select(o => (double)(o.GetValue() ?? 0d)).ToList(),
+                    Values = fluxRecords.Where(o => o.GetField() == field).Select(o => (double)o.GetValue()).ToList(),
                 });
             }
             return eChartsData;
         }
 
+        
+        public async Task<string> GetRpcMessageResultAsync(GetRpcMessageOption option)
+        {
+            var query =
+                $@"from(bucket: ""{_bucket}"")
+                    |> range(start: {option.UTCStartDateTimeStr},stop:{option.UTCStopDateTimeStr})                                                           
+                    |> filter(fn: (r) => r._measurement == ""RPCMessage"" 
+                    and r.RequestId == ""{option.RequestId}"")
+                    |>last()";
+
+            var tables = await _client.GetQueryApi().QueryAsync(query, _org);
+
+            var fluxRecords = tables.SelectMany(table => table.Records);
+            
+            if (fluxRecords.Any())
+            {
+                return fluxRecords.First().GetValue().ToString();
+            }
+            return string.Empty;
+        }
         public bool WriteMeasurement<T>(T measurement)
         {
             try

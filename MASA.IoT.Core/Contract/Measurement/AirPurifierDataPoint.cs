@@ -1,9 +1,9 @@
 ﻿using InfluxDB.Client.Core;
 using Newtonsoft.Json;
 
-namespace MASA.IoT.Core.Contract
+namespace MASA.IoT.Core.Contract.Measurement
 {
-    [Measurement("AirPurifierDataPoint")]
+    [InfluxDB.Client.Core.Measurement("AirPurifierDataPoint")]
     public class AirPurifierDataPoint
     {
         /// <summary>

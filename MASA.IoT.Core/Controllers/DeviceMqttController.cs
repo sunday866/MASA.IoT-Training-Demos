@@ -6,7 +6,6 @@ using MASA.IoT.Core.GateWay;
 using MASA.IoT.Core.Handler;
 using MASA.IoT.Core.IHandler;
 using MASA.IoT.WebApi.Handler;
-using MASA.IoT.WebApi.IHandler;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MASA.IoT.Core.Controllers
@@ -42,10 +41,45 @@ namespace MASA.IoT.Core.Controllers
             //Console.WriteLine($"Subscriber received, DeviceName:{pubSubOptions.DeviceName},Msg:{pubSubOptions.Msg}");
         }
 
-        [HttpPost("WriteRPCMessage")]
-        public async Task<RpcMessageResponse> WriteRPCMessageAsync(RpcMessageRequest request)
+
+        /// <summary>
+        /// 设备响应RPC请求
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("RespondToRpc")]
+        public async Task<bool> RespondToRpcAsync(RespondRpcMessageRequest request)
         {
-           return  await _deviceHandler.WriteRPCMessageAsync(request);
+            Console.WriteLine(request.MessageId);
+            Console.WriteLine(request.Payload);
+            Console.WriteLine(request.Topic);
+
+            var infoArr = request.Topic.Split("/");
+
+           var result=  _deviceHandler.RespondToRpc(new RpcMessageRequest
+            {
+                DeviceName = infoArr[2],
+                RequestId = Guid.Parse(infoArr[3]),
+                ProductId = Guid.Parse(infoArr[1]),
+                MessageType = MessageType.Up,
+                MessageId = request.MessageId,
+                MessageData = request.Payload,
+            });
+           return await Task.FromResult(result);
+        }
+
+        [HttpPost("SendRpcMessage")]
+        public async Task<RpcMessageResponse> SendRpcMessageAsync(SendRpcMessageRequest request)
+        {
+            return await _deviceHandler.PublishAndGetResponseAsync(new RpcMessageRequest
+            {
+                DeviceName = request.DeviceName,
+                RequestId = Guid.NewGuid(),
+                ProductId = request.ProductId,
+                MessageType = MessageType.Up,
+                MessageData = request.MessageData,
+                Timeout = request.Timeout
+            });
         }
     }
 }

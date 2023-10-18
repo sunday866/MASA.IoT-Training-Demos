@@ -8,6 +8,11 @@
         public bool Success { get; set; }
 
         /// <summary>
+        /// 设备返回内容
+        /// </summary>
+        public string? DeviceResponse { get; set; }
+
+        /// <summary>
         /// 产品ID
         /// </summary>
 
@@ -17,5 +22,11 @@
         /// 请求ID
         /// </summary>
         public Guid RequestId { get; set; }
+
+
+        /// <summary>
+        /// 消息ID（设备）
+        /// </summary>
+        public string MessageId { get; set; }
     }
 }

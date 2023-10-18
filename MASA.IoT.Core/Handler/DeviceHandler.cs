@@ -1,11 +1,12 @@
-﻿using Dapr.Client.Autogen.Grpc.v1;
+﻿using System.Net;
+using Dapr.Client.Autogen.Grpc.v1;
+using Flurl.Http;
 using Masa.BuildingBlocks.Ddd.Domain.Repositories;
 using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.Core.IHandler;
 using MASA.IoT.Core.Infrastructure;
 using MASA.IoT.WebApi.Contract;
-using MASA.IoT.WebApi.IHandler;
 using MASA.IoT.WebApi.Models.Models;
 using Masa.Utils.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,9 @@ using MASA.IoT.Common;
 using MASA.IoT.Core.Contract.Measurement;
 using Newtonsoft.Json;
 using MASA.IoT.Core.Contract.Mqtt;
+using MASA.IoT.WebApi.Contract.Mqtt;
+using MASA.IoT.WebApi;
+using Microsoft.Extensions.Options;
 
 namespace MASA.IoT.Core.Handler
 {
@@ -22,11 +26,15 @@ namespace MASA.IoT.Core.Handler
         private readonly IMqttHandler _mqttHandler;
         private readonly ITimeSeriesDbClient _timeSeriesDbClient;
 
+        private readonly AppSettings _appSettings;
+
+
         public DeviceHandler(MASAIoTContext ioTDbContext, IMqttHandler mqttHandler, ITimeSeriesDbClient timeSeriesDbClient)
         {
             _ioTDbContext = ioTDbContext;
             _mqttHandler = mqttHandler;
             _timeSeriesDbClient = timeSeriesDbClient;
+
         }
 
 
@@ -59,64 +67,104 @@ namespace MASA.IoT.Core.Handler
             return await _timeSeriesDbClient.GetDeviceDataPointListAsync(option);
         }
 
-
+        /// <summary>
+        /// 发布指令并等待设备返回
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <exception cref="UserFriendlyException"></exception>
         public async Task<RpcMessageResponse> PublishAndGetResponseAsync(RpcMessageRequest request)
         {
+            var emqxBaseResponse = await _mqttHandler.PublishToMqttAsync(new PublishMessageRequest
+            {
+                Topic = $"rpc/{request.ProductId}/{request.DeviceName}/{request.RequestId}",
+                Payload = request.MessageData
+            });
+            if (string.IsNullOrEmpty(emqxBaseResponse.Id)) //发布失败
+            {
+                throw new UserFriendlyException($"reason_code:{emqxBaseResponse.reason_code},Code:{emqxBaseResponse.Code},Message:{emqxBaseResponse.Message}");
+            }
+            request.MessageId = emqxBaseResponse.Id;
+            request.MessageType = MessageType.Down;
+            //写入influxDb 日志
+            var writeSucceeded = WriteRpcMessageLog(request);
+            if (writeSucceeded)
+            {
+                //获取设备返回数据
+                return await GetRpcMessageResponseAsync(new GetRpcMessageOption
+                {
+                    RequestId = request.RequestId,
+                    StartDateTime = DateTime.Now.AddMinutes(-5),
+                    Timeout = request.Timeout,
+                    StopDateTime = DateTime.Now.AddMinutes(+5)
+                });
+            }
 
+            throw new UserFriendlyException("Write inflxDB error!");
         }
 
+        public bool RespondToRpc(RpcMessageRequest request)
+        {
+            return WriteRpcMessageLog(request);
+        }
         /// <summary>
         /// 写入RPC日志
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public bool WriteRpcMessage(RpcMessageRequest request)
+        private bool WriteRpcMessageLog(RpcMessageRequest request)
         {
             var message = new RPCMessage
             {
                 DeviceName = request.DeviceName,
                 ProductId = request.ProductId,
-                MessageType = MessageType.Down,
-                RequestId = Guid.NewGuid(),
-                MessageId = Guid.NewGuid(),
+                MessageType = request.MessageType,
+                RequestId = request.RequestId,
+                MessageId = request.MessageId,
                 MessageData = request.MessageData,
                 Timestamp = Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds)
             };
+
             //记录下发指令
             return _timeSeriesDbClient.WriteMeasurement(message);
+
         }
 
 
         private async Task<RpcMessageResponse> GetRpcMessageResponseAsync(GetRpcMessageOption option)
         {
-            var deviceResponse = string.Empty;
+
+            (string messageId, string deviceResonse) messageInfo = new();
             for (int i = 0; i < option.Timeout * 10; i++) //100ms查询一次
             {
-                deviceResponse = await _timeSeriesDbClient.GetRpcMessageResultAsync(option);
-                if (!string.IsNullOrEmpty(deviceResponse))
+                messageInfo = await _timeSeriesDbClient.GetRpcMessageResultAsync(option);
+                if (!string.IsNullOrEmpty(messageInfo.deviceResonse))
                 {
                     break; //查询到设备返回消息就停止
                 }
                 await Task.Delay(100);
             }
 
-            var result = new RpcMessageResponse();
-            if (!string.IsNullOrEmpty(deviceResponse))
+            var result = new RpcMessageResponse()
             {
-                var rpcMessageResponse = JsonConvert.DeserializeObject<RpcMessageResponse>(deviceResponse);
+                RequestId = option.RequestId,
+                Success = false,
+                ErrorMessage = "Cmd Timeout",
+                DeviceResponse = string.Empty,
+                MessageId = string.Empty,
+            };
+
+            if (!string.IsNullOrEmpty(messageInfo.deviceResonse))
+            {
+                var rpcMessageResponse = JsonConvert.DeserializeObject<RpcMessageResponse>(messageInfo.deviceResonse);
                 result.Success = rpcMessageResponse.Success;
                 result.ErrorMessage = rpcMessageResponse.ErrorMessage;
-                return rpcMessageResponse;
+                result.DeviceResponse = messageInfo.deviceResonse;
+                result.MessageId = messageInfo.messageId;
+                result.RequestId = option.RequestId;
             }
-            else
-            {
-                return new RpcMessageResponse //查询不到返回超时
-                {
-                    Success = false,
-                    ErrorMessage = "Cmd Timeout",
-                    MessageId = option.MessageId,
-                };
-            }
+
+            return result;
         }
 
         public Task<bool> WriteTestDataAsync()
@@ -196,7 +244,7 @@ namespace MASA.IoT.Core.Handler
                 return new DeviceRegResponse
                 {
                     Succeed = false,
-                    ErrMsg = addDeviceResponse.message
+                    ErrMsg = addDeviceResponse.Message
                 };
             }
         }

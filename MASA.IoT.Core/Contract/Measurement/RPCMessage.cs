@@ -30,7 +30,7 @@ namespace MASA.IoT.Core.Contract.Measurement
         /// <summary>
         /// 消息ID
         /// </summary>
-        [Column("MessageId", IsTag = true)] public Guid MessageId { get; set; }
+        [Column("MessageId", IsTag = true)] public string MessageId { get; set; }
 
         /// <summary>
         /// 消息体

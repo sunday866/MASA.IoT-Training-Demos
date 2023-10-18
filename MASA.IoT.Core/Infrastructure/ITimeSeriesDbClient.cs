@@ -1,5 +1,6 @@
 ﻿using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.Core.Contract.Measurement;
+using MASA.IoT.Core.Contract.Mqtt;
 
 namespace MASA.IoT.Core.Infrastructure
 {
@@ -10,6 +11,6 @@ namespace MASA.IoT.Core.Infrastructure
         bool WritePoint(AirPurifierDataPoint airPurifierDataPoint);
         Task<EChartsData> GetDeviceDataPointListAsync(GetDeviceDataPointListOption option);
 
-        Task<string> GetRpcMessageResultAsync(GetRpcMessageOption option);
+        Task<(string messageId, string deviceResonse)> GetRpcMessageResultAsync(GetRpcMessageOption option);
     }
 }

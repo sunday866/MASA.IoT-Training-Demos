@@ -1,5 +1,4 @@
 ﻿using MASA.IoT.WebApi.Contract;
-using MASA.IoT.WebApi.IHandler;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System.Text;

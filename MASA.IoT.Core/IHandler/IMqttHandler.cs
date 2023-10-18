@@ -1,10 +1,10 @@
-﻿using MASA.IoT.WebApi.Contract;
-using MASA.IoT.WebApi.Contract.Mqtt;
+﻿using MASA.IoT.Core.Contract.Mqtt;
 
-namespace MASA.IoT.WebApi.IHandler
+namespace MASA.IoT.Core.IHandler
 {
     public interface IMqttHandler
     {
         Task<AddDeviceResponse> DeviceRegAsync(string deviceName, string password);
+        Task<EmqxBaseResponse> PublishToMqttAsync(PublishMessageRequest request);
     }
 }

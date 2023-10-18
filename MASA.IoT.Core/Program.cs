@@ -5,7 +5,6 @@ using MASA.IoT.Core.IHandler;
 using MASA.IoT.Core.Infrastructure;
 using MASA.IoT.WebApi;
 using MASA.IoT.WebApi.Handler;
-using MASA.IoT.WebApi.IHandler;
 using MASA.IoT.WebApi.Models.Models;
 using Microsoft.EntityFrameworkCore;
 

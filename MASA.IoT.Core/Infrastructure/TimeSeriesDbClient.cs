@@ -3,6 +3,7 @@ using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.Core.Contract.Measurement;
+using MASA.IoT.Core.Contract.Mqtt;
 using MASA.IoT.WebApi;
 using Microsoft.Extensions.Options;
 
@@ -52,7 +53,7 @@ namespace MASA.IoT.Core.Infrastructure
                 eChartsData.FieldDataList.Add(new FieldData
                 {
                     FieldName = field,
-                    DateTimes = fluxRecords.Where(o => o.GetField()== field).Select(o => o.GetTime().Value.ToDateTimeUtc())
+                    DateTimes = fluxRecords.Where(o => o.GetField() == field).Select(o => o.GetTime().Value.ToDateTimeUtc())
                         .ToList(),
                     Values = fluxRecords.Where(o => o.GetField() == field).Select(o => (double)o.GetValue()).ToList(),
                 });
@@ -60,25 +61,28 @@ namespace MASA.IoT.Core.Infrastructure
             return eChartsData;
         }
 
-        
-        public async Task<string> GetRpcMessageResultAsync(GetRpcMessageOption option)
+
+        public async Task<(string messageId, string deviceResonse)> GetRpcMessageResultAsync(GetRpcMessageOption option)
         {
             var query =
                 $@"from(bucket: ""{_bucket}"")
                     |> range(start: {option.UTCStartDateTimeStr},stop:{option.UTCStopDateTimeStr})                                                           
                     |> filter(fn: (r) => r._measurement == ""RPCMessage"" 
+                    and r.MessageType ==""Up""
                     and r.RequestId == ""{option.RequestId}"")
                     |>last()";
 
             var tables = await _client.GetQueryApi().QueryAsync(query, _org);
 
             var fluxRecords = tables.SelectMany(table => table.Records);
-            
+
             if (fluxRecords.Any())
             {
-                return fluxRecords.First().GetValue().ToString();
+                return new ValueTuple<string, string>(fluxRecords.First().GetValueByKey("MessageId").ToString(),
+                          fluxRecords.First().GetValue().ToString());
             }
-            return string.Empty;
+
+            return new ValueTuple<string, string>(string.Empty, string.Empty);
         }
         public bool WriteMeasurement<T>(T measurement)
         {

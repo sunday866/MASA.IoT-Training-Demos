@@ -18,6 +18,7 @@ namespace MASA.IoT.Core.IHandler
         Task<bool> WriteTestDataAsync();
         Task<EChartsData> GetDeviceDataPointListAsync(GetDeviceDataPointListOption option);
 
-        Task<RpcMessageResponse> WriteRPCMessageAsync(RpcMessageRequest request);
+        Task<RpcMessageResponse> PublishAndGetResponseAsync(RpcMessageRequest request);
+        bool RespondToRpc(RpcMessageRequest request);
     }
 }

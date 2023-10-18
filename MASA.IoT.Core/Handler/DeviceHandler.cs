@@ -103,6 +103,11 @@ namespace MASA.IoT.Core.Handler
             throw new UserFriendlyException("Write inflxDB error!");
         }
 
+        /// <summary>
+        /// 设备回复写入influxDB日志
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public bool RespondToRpc(RpcMessageRequest request)
         {
             return WriteRpcMessageLog(request);
@@ -116,9 +121,9 @@ namespace MASA.IoT.Core.Handler
         {
             var message = new RPCMessage
             {
-                DeviceName = request.DeviceName,
-                ProductId = request.ProductId,
-                MessageType = request.MessageType,
+                DeviceName = request.DeviceName, //设备名称
+                ProductId = request.ProductId, //产品ID
+                MessageType = request.MessageType, //
                 RequestId = request.RequestId,
                 MessageId = request.MessageId,
                 MessageData = request.MessageData,
@@ -127,13 +132,15 @@ namespace MASA.IoT.Core.Handler
 
             //记录下发指令
             return _timeSeriesDbClient.WriteMeasurement(message);
-
         }
 
-
+        /// <summary>
+        /// 获取设备回复
+        /// </summary>
+        /// <param name="option"></param>
+        /// <returns></returns>
         private async Task<RpcMessageResponse> GetRpcMessageResponseAsync(GetRpcMessageOption option)
         {
-
             (string messageId, string deviceResonse) messageInfo = new();
             for (int i = 0; i < option.Timeout * 10; i++) //100ms查询一次
             {

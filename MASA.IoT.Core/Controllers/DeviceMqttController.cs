@@ -50,13 +50,8 @@ namespace MASA.IoT.Core.Controllers
         [HttpPost("RespondToRpc")]
         public async Task<bool> RespondToRpcAsync(RespondRpcMessageRequest request)
         {
-            Console.WriteLine(request.MessageId);
-            Console.WriteLine(request.Payload);
-            Console.WriteLine(request.Topic);
-
             var infoArr = request.Topic.Split("/");
-
-           var result=  _deviceHandler.RespondToRpc(new RpcMessageRequest
+            var result = _deviceHandler.RespondToRpc(new RpcMessageRequest
             {
                 DeviceName = infoArr[2],
                 RequestId = Guid.Parse(infoArr[3]),
@@ -65,9 +60,14 @@ namespace MASA.IoT.Core.Controllers
                 MessageId = request.MessageId,
                 MessageData = request.Payload,
             });
-           return await Task.FromResult(result);
+            return await Task.FromResult(result);
         }
 
+        /// <summary>
+        /// 发送RPC式调用，并同步等待设备返回
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("SendRpcMessage")]
         public async Task<RpcMessageResponse> SendRpcMessageAsync(SendRpcMessageRequest request)
         {

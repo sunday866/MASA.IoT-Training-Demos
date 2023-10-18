@@ -61,7 +61,11 @@ namespace MASA.IoT.Core.Infrastructure
             return eChartsData;
         }
 
-
+        /// <summary>
+        /// 从influxDb获取设备回复的消息
+        /// </summary>
+        /// <param name="option"></param>
+        /// <returns></returns>
         public async Task<(string messageId, string deviceResonse)> GetRpcMessageResultAsync(GetRpcMessageOption option)
         {
             var query =

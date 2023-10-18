@@ -2,7 +2,6 @@
 
 namespace MASA.IoT.Core.Contract.Mqtt
 {
-    //[DataContract]
     public class PublishMessageRequest
     {
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using Dapr;
 using MASA.IoT.Common;
+using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.Core.Contract.Measurement;
 using MASA.IoT.Core.Contract.Mqtt;
 using MASA.IoT.Core.GateWay;

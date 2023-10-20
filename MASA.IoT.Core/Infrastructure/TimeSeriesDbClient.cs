@@ -1,10 +1,15 @@
 ﻿using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
+using InfluxDB.Client.Core.Flux.Domain;
 using InfluxDB.Client.Writes;
 using MASA.IoT.Core.Contract.Device;
+using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.Core.Contract.Measurement;
 using MASA.IoT.WebApi;
 using Microsoft.Extensions.Options;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using MASA.IoT.Common;
 
 namespace MASA.IoT.Core.Infrastructure
 {
@@ -60,6 +65,74 @@ namespace MASA.IoT.Core.Infrastructure
             return eChartsData;
         }
 
+        public async Task<List<T>> GetRecordListAsync<T>(string query) where T : new()
+        {
+            var tables = await _client.GetQueryApi().QueryAsync(query, _org);
+            var fluxRecords = tables.SelectMany(table => table.Records).ToList();
+
+            //获取所有属性。
+            var properties = typeof(T).GetProperties();
+
+            var result = new List<T>();
+            foreach (var fluxRecord in fluxRecords)
+            {
+                var t = new T();
+                foreach (var property in properties)
+                {
+                    var s = property;
+                    var s1 = property.PropertyType;
+                    var s2 = Type.GetTypeCode(s1);
+
+                    if (property.PropertyType.Name == "Guid")
+                    {
+                        var v = fluxRecord.GetValueByKey(property.Name).ToString();
+
+                        property.SetValue(t, Guid.Parse(v), null);
+
+                    }
+                    else if (property.PropertyType.IsEnum)
+                    {
+                        property.SetValue(t, int.Parse(fluxRecord.GetValueByKey(property.Name).ToString()), null);
+                    }
+                    else
+                    {
+                        if (property.CustomAttributes.Any(o => Attribute.IsDefined(property, typeof(IsValueAttribute))))
+                        {
+                            property.SetValue(t, fluxRecord.GetValue(), null);
+                        }
+                        else if (property.CustomAttributes.Any(o => Attribute.IsDefined(property, typeof(IsTsAttribute))))
+                        {
+                            property.SetValue(t, fluxRecord.GetTimeInDateTime(), null);
+                        }
+                        else
+                        {
+                            property.SetValue(t, fluxRecord.GetValueByKey(property.Name), null);
+                        }
+                    }
+
+                    //switch (Type.GetTypeCode(property.GetType()))
+                    //{
+                    //    case TypeCode.Int32:
+
+                    //        break;
+                    //    case TypeCode.String:
+                    //        property.SetValue(t, fluxRecord.GetValueByKey(property.Name).ToString(), null);
+                    //        break;
+                    //    case TypeCode.Object:
+                    //        if (property is Guid)
+                    //        {
+                    //            property.SetValue(t, fluxRecord.GetValueByKey(property.Name).ToString(), null);
+                    //        }
+                    //     break;
+                    //}
+
+                }
+                result.Add(t);
+            }
+            return result;
+
+        }
+
         /// <summary>
         /// 从influxDb获取设备回复的消息
         /// </summary>
@@ -70,8 +143,8 @@ namespace MASA.IoT.Core.Infrastructure
             var query =
                 $@"from(bucket: ""{_bucket}"")
                     |> range(start: {option.UTCStartDateTimeStr},stop:{option.UTCStopDateTimeStr})                                                           
-                    |> filter(fn: (r) => r._measurement == ""RPCMessage"" 
-                    and r.MessageType ==""Up""
+                    |> filter(fn: (r) => r._measurement == ""RpcMessage"" 
+                    and r.MessageType == ""{(int)MessageType.Up}""
                     and r.RequestId == ""{option.RequestId}"")
                     |>last()";
 
@@ -139,5 +212,13 @@ namespace MASA.IoT.Core.Infrastructure
                 return false;
             }
         }
+
+        static bool IsGuidByReg(string strSrc)
+        {
+            Regex reg = new Regex("^[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}$", RegexOptions.Compiled);
+            return reg.IsMatch(strSrc);
+        }
+
+
     }
 }

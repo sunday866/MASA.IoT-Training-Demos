@@ -1,9 +1,10 @@
 ﻿using InfluxDB.Client.Core;
+using MASA.IoT.Core.Contract.Enum;
 using Newtonsoft.Json;
 
 namespace MASA.IoT.Core.Contract.Measurement
 {
-    [InfluxDB.Client.Core.Measurement("RPCMessage")]
+    [InfluxDB.Client.Core.Measurement("RpcMessage")]
     public class RpcMessage
     {
         /// <summary>
@@ -20,7 +21,7 @@ namespace MASA.IoT.Core.Contract.Measurement
         /// <summary>
         /// 消息类型
         /// </summary>
-        [Column("MessageType", IsTag = true)] public MessageType MessageType { get; set; }
+        [Column("MessageType", IsTag = true)] public int MessageType { get; set; }
 
         /// <summary>
         /// 请求ID
@@ -30,10 +31,10 @@ namespace MASA.IoT.Core.Contract.Measurement
         /// <summary>
         /// 消息ID
         /// </summary>
-        [Column("MessageId", IsTag = true)] public required string MessageId { get; set; }
+        [Column("MessageId", IsTag = true)] public string? MessageId { get; set; }
 
         /// <summary>
-        /// 消息体
+        /// 消息体(下发)
         /// </summary>
         [Column("MessageData")] public string? MessageData { get; set; }
 
@@ -42,12 +43,5 @@ namespace MASA.IoT.Core.Contract.Measurement
         /// </summary>
         [JsonProperty(propertyName: "Ts")]
         [Column(IsTimestamp = true)] public long Timestamp { get; set; }
-    }
-
-    public enum MessageType
-    {
-        Up, //回复
-        Down, //下发
-        Other //其他
     }
 }

@@ -13,7 +13,8 @@
         {
             get
             {
-                var utcStartTime = TimeZoneInfo.ConvertTimeToUtc(StartDateTime.Value, TimeZoneInfo.Local);
+                var newt = DateTime.SpecifyKind(StartDateTime.Value, DateTimeKind.Local);
+                var utcStartTime = TimeZoneInfo.ConvertTimeToUtc(newt, TimeZoneInfo.Local);
                 return utcStartTime.ToString("yyyy-MM-ddTHH:mm:ssZ");
             }
         }
@@ -24,7 +25,8 @@
         {
             get
             {
-                var utcStartTime = TimeZoneInfo.ConvertTimeToUtc(StopDateTime.Value, TimeZoneInfo.Local);
+                var newt2 = DateTime.SpecifyKind(StopDateTime.Value, DateTimeKind.Local);
+                var utcStartTime = TimeZoneInfo.ConvertTimeToUtc(newt2, TimeZoneInfo.Local);
                 return utcStartTime.ToString("yyyy-MM-ddTHH:mm:ssZ");
             }
         }

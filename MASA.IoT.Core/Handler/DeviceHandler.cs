@@ -27,9 +27,7 @@ namespace MASA.IoT.Core.Handler
             _ioTDbContext = ioTDbContext;
             _mqttHandler = mqttHandler;
             _timeSeriesDbClient = timeSeriesDbClient;
-
         }
-
 
         /// <summary>
         /// 写入数据
@@ -59,6 +57,56 @@ namespace MASA.IoT.Core.Handler
         {
             return await _timeSeriesDbClient.GetDeviceDataPointListAsync(option);
         }
+
+        public async Task<List<RpcMessageLogAll>> GetRpcMessageLogAsync(GetDeviceDataPointListOption option)
+        {
+            var query1 = $@"from(bucket: ""IoTDemos"")
+                |> range(start: {option.UTCStartDateTimeStr},stop:{option.UTCStopDateTimeStr})                                                    
+                |> filter(fn: (r) => r._measurement == ""RpcMessage""
+                and r.ProductId == ""{option.ProductId}""
+                and r.DeviceName == ""{option.DeviceName}""
+                and r.MessageType == ""{(int)MessageType.Down}"")";
+
+            var rpcMessageLogList = await _timeSeriesDbClient.GetRecordListAsync<RpcMessageLog>(query1);
+            var resultList = rpcMessageLogList.Select(rpcMessageLog => new RpcMessageLogAll
+            {
+                DeviceName = rpcMessageLog.DeviceName,
+                ProductId = rpcMessageLog.ProductId,
+                MessageType = rpcMessageLog.MessageType,
+                RequestId = rpcMessageLog.RequestId,
+                MessageId = rpcMessageLog.MessageId,
+                DateTime = rpcMessageLog.DateTime,
+                DownMessageData = rpcMessageLog.MessageData,
+            })
+                .ToList();
+
+            //查找接口返回
+            if (rpcMessageLogList.Any())
+            {
+                var requestIdListStr = string.Join("\",\"", rpcMessageLogList.Select(o => o.RequestId));
+                var query2 = $@"from(bucket: ""IoTDemos"")
+                |> range(start: 0)                                                           
+                |> filter(fn: (r) => r._measurement == ""RpcMessage""
+                and r.MessageType == ""{(int)MessageType.Api}""
+                and contains(value:r.RequestId,set:[""{requestIdListStr}""]) )
+                ";
+
+                var rpcApiMessageLogList = await _timeSeriesDbClient.GetRecordListAsync<RpcApiMessageLog>(query2);
+
+                if (rpcApiMessageLogList.Any())
+                {
+                    foreach (var log in resultList)
+                    {
+                        log.ApiLog = rpcApiMessageLogList
+                            .FirstOrDefault(o => o.RequestId == log.RequestId).MessageData;
+                    }
+                }
+            }
+
+            return resultList;
+        }
+
+
 
         /// <summary>
         /// 发布指令并等待设备返回
@@ -94,10 +142,11 @@ namespace MASA.IoT.Core.Handler
 
                 var sss = JsonConvert.SerializeObject(result);
                 //写入接口日志
-                _timeSeriesDbClient.WriteMeasurement(new RPCMessageLog
+                _timeSeriesDbClient.WriteMeasurement(new RpcMessage
                 {
+                    MessageType = (int)MessageType.Api,
                     RequestId = request.RequestId,
-                    RpcMessageResponseJson = JsonConvert.SerializeObject(result)
+                    MessageData = JsonConvert.SerializeObject(result)
                 });
 
                 return result;
@@ -126,7 +175,7 @@ namespace MASA.IoT.Core.Handler
             {
                 DeviceName = request.DeviceName, //设备名称
                 ProductId = request.ProductId, //产品ID
-                MessageType = request.MessageType, //
+                MessageType = (int)request.MessageType, //
                 RequestId = request.RequestId,
                 MessageId = request.MessageId,
                 MessageData = request.MessageData,

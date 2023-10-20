@@ -11,5 +11,7 @@ namespace MASA.IoT.Core.Infrastructure
         Task<EChartsData> GetDeviceDataPointListAsync(GetDeviceDataPointListOption option);
 
         Task<(string messageId, string deviceResonse)> GetRpcMessageResultAsync(GetRpcMessageOption option);
+
+        Task<List<T>> GetRecordListAsync<T>(string query) where T : new();
     }
 }

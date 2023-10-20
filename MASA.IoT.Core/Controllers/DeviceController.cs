@@ -61,6 +61,10 @@ namespace MASA.IoT.WebApi.Controllers
             return await _deviceHandler.GetDeviceDataPointListAsync(option);
         }
 
-
+        [HttpPost]
+        public async Task<List<RpcMessageLogAll>> GetRpcMessageLogAsync([FromBody] GetDeviceDataPointListOption option)
+        {
+            return await _deviceHandler.GetRpcMessageLogAsync(option);
+        }
     }
 }

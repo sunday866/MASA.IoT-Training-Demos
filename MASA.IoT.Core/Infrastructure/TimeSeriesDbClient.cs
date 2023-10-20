@@ -3,7 +3,6 @@ using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.Core.Contract.Measurement;
-using MASA.IoT.Core.Contract.Mqtt;
 using MASA.IoT.WebApi;
 using Microsoft.Extensions.Options;
 

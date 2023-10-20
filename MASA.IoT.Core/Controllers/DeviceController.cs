@@ -1,8 +1,5 @@
 ﻿using MASA.IoT.WebApi.Contract;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using System.Text;
-using MASA.IoT.Core.Contract;
 using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.Core.Contract.Mqtt;
 using MASA.IoT.Core.Contract.Device;

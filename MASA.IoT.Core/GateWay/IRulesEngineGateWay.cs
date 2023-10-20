@@ -1,5 +1,4 @@
 ﻿using MASA.IoT.Common;
-using Newtonsoft.Json.Linq;
 
 namespace MASA.IoT.Core.GateWay
 {

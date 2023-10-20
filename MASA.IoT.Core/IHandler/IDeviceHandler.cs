@@ -3,7 +3,6 @@ using MASA.IoT.Core.Contract.Enum;
 using MASA.IoT.WebApi.Contract;
 using Masa.Utils.Models;
 using MASA.IoT.Common;
-using MASA.IoT.Core.Contract.Measurement;
 using MASA.IoT.Core.Contract.Mqtt;
 
 namespace MASA.IoT.Core.IHandler

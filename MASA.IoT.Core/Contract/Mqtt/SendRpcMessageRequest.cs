@@ -1,7 +1,4 @@
-﻿using MASA.IoT.Core.Contract.Measurement;
-using Newtonsoft.Json;
-
-namespace MASA.IoT.Core.Contract.Mqtt
+﻿namespace MASA.IoT.Core.Contract.Mqtt
 {
     public class SendRpcMessageRequest
     {

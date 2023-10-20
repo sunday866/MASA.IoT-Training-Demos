@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace MASA.IoT.Core.Contract.Measurement
 {
     [InfluxDB.Client.Core.Measurement("RPCMessage")]
-    public class RPCMessage
+    public class RpcMessage
     {
         /// <summary>
         /// 设备名称
@@ -30,7 +30,7 @@ namespace MASA.IoT.Core.Contract.Measurement
         /// <summary>
         /// 消息ID
         /// </summary>
-        [Column("MessageId", IsTag = true)] public string MessageId { get; set; }
+        [Column("MessageId", IsTag = true)] public required string MessageId { get; set; }
 
         /// <summary>
         /// 消息体

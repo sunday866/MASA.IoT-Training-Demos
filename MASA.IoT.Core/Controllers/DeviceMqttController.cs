@@ -3,9 +3,7 @@ using MASA.IoT.Common;
 using MASA.IoT.Core.Contract.Measurement;
 using MASA.IoT.Core.Contract.Mqtt;
 using MASA.IoT.Core.GateWay;
-using MASA.IoT.Core.Handler;
 using MASA.IoT.Core.IHandler;
-using MASA.IoT.WebApi.Handler;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MASA.IoT.Core.Controllers

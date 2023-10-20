@@ -1,6 +1,5 @@
 ﻿using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.Core.Contract.Measurement;
-using MASA.IoT.Core.Contract.Mqtt;
 
 namespace MASA.IoT.Core.Infrastructure
 {

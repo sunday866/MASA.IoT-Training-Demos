@@ -1,22 +1,16 @@
-﻿using System.Net;
-using Dapr.Client.Autogen.Grpc.v1;
-using Flurl.Http;
-using Masa.BuildingBlocks.Ddd.Domain.Repositories;
+﻿using Masa.BuildingBlocks.Ddd.Domain.Repositories;
+using Masa.Utils.Models;
+using MASA.IoT.Common;
 using MASA.IoT.Core.Contract.Device;
 using MASA.IoT.Core.Contract.Enum;
+using MASA.IoT.Core.Contract.Measurement;
+using MASA.IoT.Core.Contract.Mqtt;
 using MASA.IoT.Core.IHandler;
 using MASA.IoT.Core.Infrastructure;
 using MASA.IoT.WebApi.Contract;
 using MASA.IoT.WebApi.Models.Models;
-using Masa.Utils.Models;
 using Microsoft.EntityFrameworkCore;
-using MASA.IoT.Common;
-using MASA.IoT.Core.Contract.Measurement;
 using Newtonsoft.Json;
-using MASA.IoT.Core.Contract.Mqtt;
-using MASA.IoT.WebApi.Contract.Mqtt;
-using MASA.IoT.WebApi;
-using Microsoft.Extensions.Options;
 
 namespace MASA.IoT.Core.Handler
 {
@@ -26,7 +20,6 @@ namespace MASA.IoT.Core.Handler
         private readonly IMqttHandler _mqttHandler;
         private readonly ITimeSeriesDbClient _timeSeriesDbClient;
 
-        private readonly AppSettings _appSettings;
 
 
         public DeviceHandler(MASAIoTContext ioTDbContext, IMqttHandler mqttHandler, ITimeSeriesDbClient timeSeriesDbClient)
@@ -91,13 +84,23 @@ namespace MASA.IoT.Core.Handler
             if (writeSucceeded)
             {
                 //获取设备返回数据
-                return await GetRpcMessageResponseAsync(new GetRpcMessageOption
+                var result = await GetRpcMessageResponseAsync(new GetRpcMessageOption
                 {
                     RequestId = request.RequestId,
                     StartDateTime = DateTime.Now.AddMinutes(-5),
                     Timeout = request.Timeout,
                     StopDateTime = DateTime.Now.AddMinutes(+5)
                 });
+
+                var sss = JsonConvert.SerializeObject(result);
+                //写入接口日志
+                _timeSeriesDbClient.WriteMeasurement(new RPCMessageLog
+                {
+                    RequestId = request.RequestId,
+                    RpcMessageResponseJson = JsonConvert.SerializeObject(result)
+                });
+
+                return result;
             }
 
             throw new UserFriendlyException("Write inflxDB error!");
@@ -119,7 +122,7 @@ namespace MASA.IoT.Core.Handler
         /// <returns></returns>
         private bool WriteRpcMessageLog(RpcMessageRequest request)
         {
-            var message = new RPCMessage
+            var message = new RpcMessage
             {
                 DeviceName = request.DeviceName, //设备名称
                 ProductId = request.ProductId, //产品ID

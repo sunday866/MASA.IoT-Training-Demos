@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MASA.IoT.WebApi.Contract
+﻿namespace MASA.IoT.WebApi.Contract
 {
     public class DeviceRegResponse
     {

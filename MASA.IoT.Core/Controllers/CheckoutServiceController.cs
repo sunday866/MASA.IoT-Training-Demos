@@ -1,13 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Dapr;
-using Dapr.Client;
-using Masa.BuildingBlocks.Ddd.Domain.Repositories;
 using MASA.IoT.Common;
-using MASA.IoT.WebApi.Models;
-using MASA.IoT.WebApi.Models.Models;
 
 namespace MASA.IoT.WebApi.Controllers
 {

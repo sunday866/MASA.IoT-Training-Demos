@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace MASA.IoT.WebApi.Contract.Mqtt
+﻿namespace MASA.IoT.WebApi.Contract.Mqtt
 {
     //[DataContract]
     public class AddDeviceRequest
